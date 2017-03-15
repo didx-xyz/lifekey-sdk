@@ -16,6 +16,23 @@ cp etc/env/blank.env.json etc/env/development.env.json
 # fill it out
 nano etc/env/development.env.json
 
-# run test and start
-npm test && NODE_ENV=development npm start
+# start
+NODE_ENV=development node your-script.js
+```
+
+## example
+
+```javascript
+'use strict'
+var sdk = require('lifekey-sdk')
+var opts = {env_file_path: 'dev.env.json'}
+var api = sdk.lifekey(opts)
+var mybot = sdk.agent(opts)
+
+mybot.on('open', function(express, socket) {
+  console.log('socket listening at', socket.address())
+  mybot.close()
+}).on('close', function() {
+  console.log('socket closed')
+}).open()
 ```
