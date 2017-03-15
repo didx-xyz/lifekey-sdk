@@ -1,0 +1,73 @@
+#!/usr/bin/env node
+
+var user_path = process.argv[2]
+var key_path = process.argv[3]
+var email = process.argv[4]
+var nickname = process.argv[5]
+var scheme = process.argv[6]
+var hostname = process.argv[7]
+var port = process.argv[8]
+var path = process.argv[9]
+
+if (!(user_path && key_path && email && nickname)) {
+  console.log('please provide')
+  console.log('  - a file path to where your user id may be written')
+  console.log('  - the path to your private key')
+  console.log('  - your email address')
+  console.log('  - your desired nickname')
+  console.log('  - your webhook scheme')
+  console.log('  - your webhook host')
+  console.log('  - your webhook port')
+  console.log('  - your webhook path')
+  console.log('exiting...')
+  process.exit(1)
+}
+
+var fs = require('fs')
+var ursa = require('ursa')
+
+try {
+  var private_key = ursa.coercePrivateKey(
+    fs.readFileSync(key_path, 'utf8')
+  )
+} catch (e) {
+  console.log('error while reading key data and coercing to ursa instance', e)
+  console.log('exiting...')
+  process.exit(1)
+}
+
+var registering = true
+var lifekey = require('../lib/lifekey')(registering)
+
+lifekey.user.register({
+  email: email,
+  nickname: nickname,
+  private_key: private_key,
+  scheme: scheme,
+  hostname: hostname,
+  port: port,
+  webhook_path: path
+}, function(err, res) {
+  if (err) {
+    console.log('error while attemtping to register', err)
+    process.exit(1)
+  }
+
+  try {
+    fs.writeFileSync(
+      user_path,
+      JSON.stringify({id: res.id, did: null}),
+      {encoding: 'utf8', mode: 0o600}
+    )
+  } catch (e) {
+    console.log('error while writing user id to disk', e)
+    console.log('exiting...')
+    process.exit(1)
+  }
+
+  console.log('wrote user id to disk at', user_path)
+  console.log('ensure your env file USER_PATH field matches this value')
+  console.log('check your email to conclude registration')
+  console.log('exiting...')
+  process.exit(0)
+})

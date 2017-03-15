@@ -1,0 +1,9 @@
+
+# runtime configuration template
+etc/env/
+!etc/env/blank.env.json
+
+*.log
+node_modules/
+
+*.DS_Store

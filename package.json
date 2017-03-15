@@ -1,0 +1,30 @@
+{
+  "name": "lifekey-sdk",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_ENV=development istanbul test _mocha -- --recursive --use_strict --bail --prof --check-leaks --no-exit -R spec",
+    "todo": "leasot --skip-unsupported --ignore=node_modules/**/* {test,lib,etc,bin}/**/*.js; exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "cors": "^2.8.1",
+    "express": "^4.15.2",
+    "jsonld": "^0.4.11",
+    "ld-query": "^1.0.0",
+    "morgan": "^1.8.1",
+    "secp256k1": "^3.2.5",
+    "ursa": "^0.9.4"
+  },
+  "devDependencies": {
+    "blocked": "^1.2.1",
+    "chai": "^3.5.0",
+    "istanbul": "^0.4.5",
+    "leasot": "^4.3.1",
+    "mocha": "^3.2.0"
+  }
+}
