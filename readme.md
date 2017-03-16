@@ -36,3 +36,9 @@ mybot.on('open', function(express, socket) {
   console.log('socket closed')
 }).open()
 ```
+
+## todo
+
+- change `open` to `listen` and related events
+- reconcile the `etc/env` story
+- patch up pkgjson bin option
