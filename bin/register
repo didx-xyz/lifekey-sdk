@@ -9,7 +9,7 @@ var hostname = process.argv[7]
 var port = process.argv[8]
 var path = process.argv[9]
 
-if (!(user_path && key_path && email && nickname)) {
+if (!(user_path && key_path && email && nickname && scheme && hostname && port && path)) {
   console.log('please provide')
   console.log('  - a file path to where your user id may be written')
   console.log('  - the path to your private key')
