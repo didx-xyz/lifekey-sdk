@@ -3,8 +3,6 @@ var http = require('http')
 
 var ursa = require('ursa')
 
-var env = require('../lib/env')
-
 describe('lifekey-sdk', function() {
 
   after(function() {
@@ -19,7 +17,7 @@ describe('lifekey-sdk', function() {
         agent.removeAllListeners()
         agent.close()
       }
-      agent = require('../lib/agent')({
+      agent = require('../src/agent')({
         PORT: 3000,
         WEBHOOK_PATH: '/',
         _: process.env._
@@ -73,6 +71,8 @@ describe('lifekey-sdk', function() {
   })
 
   describe('env', function() {
+    
+    var env = require('../src/env')
 
     it('should throw if not given all args', function(done) {
       

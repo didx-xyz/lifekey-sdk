@@ -2,7 +2,7 @@
 'use strict'
 
 module.exports = {
-  agent: require('./lib/agent'),
-  configure: require('./lib/env'),
-  lifekey: require('./lib/lifekey')
+  agent: require('./src/agent'),
+  configure: require('./src/env'),
+  lifekey: require('./src/lifekey')
 }
