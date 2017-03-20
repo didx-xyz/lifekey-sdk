@@ -141,6 +141,7 @@ module.exports = function(env) {
           if (!(isa.user_id &&
                 isa.license &&
                 isa.purpose &&
+                Array.isArray(isa.optional_schemas) &&
                 Array.isArray(isa.requested_schemas) &&
                 isa.requested_schemas.length)) {
             return on_send(new Error('missing required arguments'))
@@ -208,6 +209,24 @@ module.exports = function(env) {
           null,
           on_delete
         )
+      },
+      pull: function(isa_id, on_pull) {
+        request(
+          'get',
+          '/management/pull/' + isa_id,
+          auth_headers(env.USER, Date.now()),
+          null,
+          on_pull
+        )
+      },
+      push: function(isa_id, resources, on_push) {
+        request(
+          'post',
+          '/management/push/' + isa_id,
+          auth_headers(env.USER, Date.now()),
+          JSON.stringify({resources: resources}),
+          on_push
+        )
       }
     },
     resource: {
@@ -259,6 +278,7 @@ module.exports = function(env) {
             alias: resource.alias,
             encoding: resource.encoding || 'utf8',
             mime: resource.mime || 'text/plain',
+            uri: resource.uri,
             schema: resource.schema,
             value: resource.value,
             is_default: resource.is_default || false,
