@@ -20,7 +20,9 @@ describe('lifekey-sdk', function() {
         agent.close()
       }
       agent = require('../lib/agent')({
-        PORT: 3000, WEBHOOK_PATH: '/'
+        PORT: 3000,
+        WEBHOOK_PATH: '/',
+        _: process.env._
       })
       done()
     })
@@ -74,60 +76,14 @@ describe('lifekey-sdk', function() {
 
     it('should throw if not given all args', function(done) {
       
-      var cases = [
-        {},
-        {WEBHOOK_PATH: true},
-        {SIGNING_KEY_PEM: true},
-        {USER_ID: true},
-        {PORT: true},
-        {
-          WEBHOOK_PATH: true,
-          SIGNING_KEY_PEM: true
-        },
-        {
-          SIGNING_KEY_PEM: true,
-          USER_ID: true
-        },
-        {
-          PORT: true,
-          USER_ID: true
-        },
-        {
-          PORT: true,
-          WEBHOOK_PATH: true
-        },
-        {
-          WEBHOOK_PATH: true,
-          SIGNING_KEY_PEM: true,
-          USER_ID: true
-        },
-        {
-          PORT: true,
-          SIGNING_KEY_PEM: true,
-          USER_ID: true
-        },
-        {
-          PORT: true,
-          WEBHOOK_PATH: true,
-          USER_ID: true
-        },
-        {
-          PORT: true,
-          WEBHOOK_PATH: true,
-          SIGNING_KEY_PEM: true
-        }
-        // lols ^^
-      ]
-
-      for (var c in cases) {
+      [null, {}].forEach(function(options) {
         try {
-          env(cases[c])
+          env(options)
         } catch (e) {
-          continue
+          return
         }
         return done(new Error('should not have been called'))
-      }
-      
+      })
       return done()
     })
   
