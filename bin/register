@@ -111,6 +111,7 @@ register(args, function(err, res) {
     process.exit(1)
   }
   
+  // log the credentials
   console.log(
     JSON.stringify({
       USER_ID: res.id,
