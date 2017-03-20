@@ -62,6 +62,9 @@ module.exports = function(env) {
   return {
     user: {
       update_webhook_uri: function(new_webhook_url, on_update) {
+        if (!new_webhook_url) {
+          return on_update(new Error('missing required arguments'))
+        }
         request(
           'post',
           '/management/device',
@@ -232,6 +235,7 @@ module.exports = function(env) {
             attribute: resource.attribute,
             alias: resource.alias,
             encoding: resource.encoding || 'utf8',
+            schema: resource.schema,
             mime: resource.mime || 'text/plain',
             value: resource.value,
             is_default: resource.is_default || false,
@@ -255,8 +259,12 @@ module.exports = function(env) {
           '/resource/' + resource_id,
           auth_headers(env.USER, Date.now()),
           JSON.stringify({
+            entity: resource.entity,
+            attribute: resource.attribute,
+            alias: resource.alias,
             encoding: resource.encoding || 'utf8',
             mime: resource.mime || 'text/plain',
+            schema: resource.schema,
             value: resource.value,
             is_default: resource.is_default || false,
             is_archived: resource.is_archived || false
