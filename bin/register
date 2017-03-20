@@ -111,10 +111,12 @@ register(args, function(err, res) {
     process.exit(1)
   }
   
-  console.log({
-    USER_ID: res.id,
-    SIGNING_KEY_PEM: args.private_key.toPrivatePem('utf8')
-  })
+  console.log(
+    JSON.stringify({
+      USER_ID: res.id,
+      SIGNING_KEY_PEM: args.private_key.toPrivatePem('utf8')
+    }, '\t', 2)
+  )
 
   process.exit(0)
 })
