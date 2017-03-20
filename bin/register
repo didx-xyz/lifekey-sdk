@@ -1,18 +1,22 @@
 #!/usr/bin/env node
 
-var user_path = process.argv[2]
-var key_path = process.argv[3]
-var email = process.argv[4]
-var nickname = process.argv[5]
-var scheme = process.argv[6]
-var hostname = process.argv[7]
-var port = process.argv[8]
-var path = process.argv[9]
+var http = require('http')
+var fs = require('fs')
 
-if (!(user_path && key_path && email && nickname && scheme && hostname && port && path)) {
+var email = process.argv[2]
+var nickname = process.argv[3]
+var hook_scheme = process.argv[4]
+var hook_hostname = process.argv[5]
+var hook_port = process.argv[6]
+var hook_path = process.argv[7]
+
+if (!(email &&
+      nickname &&
+      hook_scheme &&
+      hook_hostname &&
+      hook_port &&
+      hook_path)) {
   console.log('please provide')
-  console.log('  - a file path to where your user id may be written')
-  console.log('  - the path to your private key')
   console.log('  - your email address')
   console.log('  - your desired nickname')
   console.log('  - your webhook scheme')
@@ -23,50 +27,120 @@ if (!(user_path && key_path && email && nickname && scheme && hostname && port &
   process.exit(1)
 }
 
-var fs = require('fs')
 var ursa = require('ursa')
+var private_key = ursa.generatePrivateKey(4096)
 
-try {
-  var private_key = ursa.coercePrivateKey(
-    fs.readFileSync(key_path, 'utf8')
+function register(options, on_register) {
+  
+  function sign(plain, private_key) {
+    return private_key.hashAndSign(
+      'sha256',
+      plain,
+      'utf8',
+      'base64',
+      false
+    )
+  }
+
+  function parse_res(res, on_parsed) {
+    var r = ''
+    res.on('data', function(data) {
+      r += data
+    }).on('end', function() {
+      try {
+        r = JSON.parse(r)
+      } catch (e) {
+        return on_parsed(e)
+      }
+      if (r.error) return on_parsed(new Error(r.message))
+      return on_parsed(null, r)
+    })
+  }
+
+  function request(method, path, headers, body, on_send) {
+    var h = {'content-type': 'application/json'}
+    if (headers) {
+      Object.keys(headers).forEach(function(k) {
+        h[k] = headers[k]
+      })
+    }
+    return http.request({
+      host: 'staging.api.lifekey.cnsnt.io',
+      path: path,
+      method: method,
+      headers: h
+    }).on('response', function(res) {
+      parse_res(res, function(err, r) {
+      if (err) return on_send(err)
+      return on_send(null, r.body)
+    })
+    }).on('error', on_send).end(body || null)
+  }
+  
+  if (!(options.email &&
+        options.nickname &&
+        options.private_key &&
+        options.scheme &&
+        options.hostname &&
+        options.port &&
+        options.webhook_path)) {
+    return on_register(new Error('missing required arguments'))
+  }
+
+  var plaintext_proof = '' + Date.now()
+
+  try {
+    var public_key = options.private_key.toPublicPem('utf8')
+    var signed_proof = sign(plaintext_proof, options.private_key)
+  } catch (e) {
+    return on_register(e)
+  }
+
+  var webhook_url = (
+    options.scheme +
+    options.hostname +
+    (!options.port || options.port === 80 || options.port === '80' ? '' : ':' + options.port) +
+    options.webhook_path
   )
-} catch (e) {
-  console.log('error while reading key data and coercing to ursa instance', e)
-  console.log('exiting...')
-  process.exit(1)
+
+  request(
+    'post',
+    '/management/register',
+    {},
+    JSON.stringify({
+      email: options.email,
+      nickname: options.nickname,
+      webhook_url: webhook_url,
+      public_key_algorithm: 'rsa',
+      public_key: public_key,
+      plaintext_proof: plaintext_proof,
+      signed_proof: signed_proof
+    }),
+    on_register
+  )
 }
 
-var lifekey = require('../lib/lifekey')({registering: true})
-
-lifekey.user.register({
+register({
   email: email,
   nickname: nickname,
   private_key: private_key,
-  scheme: scheme,
-  hostname: hostname,
-  port: port,
-  webhook_path: path
+  scheme: hook_scheme,
+  hostname: hook_hostname,
+  port: hook_port,
+  webhook_path: hook_path
 }, function(err, res) {
   if (err) {
     console.log('error while attemtping to register', err)
     process.exit(1)
   }
+  
+  console.log('user registration successful!')
+  console.log('your user credentials are displayed below...')
+  
+  console.log({
+    USER_ID: res.id,
+    SIGNING_KEY_PEM: private_key.toPrivatePem('utf8')
+  })
 
-  try {
-    fs.writeFileSync(
-      user_path,
-      JSON.stringify({id: res.id, did: null}),
-      {encoding: 'utf8', mode: 0o600}
-    )
-  } catch (e) {
-    console.log('error while writing user id to disk', e)
-    console.log('exiting...')
-    process.exit(1)
-  }
-
-  console.log('wrote user id to disk at', user_path)
-  console.log('ensure your env file USER_PATH field matches this value')
-  console.log('check your email to conclude registration')
-  console.log('exiting...')
   process.exit(0)
 })
