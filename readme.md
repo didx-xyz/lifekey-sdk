@@ -5,13 +5,17 @@
 
 ```bash
 # generate a private key (first argument: name of key, second argument: path to key)
-./bin/new_keypair my-key ~/my-agent
+./bin/new_keypair name-of-key \
+                  /path/to/key/storage
 
-# create a user account (first argument: path to id file, second argument: path to private key, third argument: user email address, fourth argument: user nickname) and await a confirmation email
-./bin/register ~/my-agent/my-id ~/my-agent/my-key.private my@email.address my-nickname
-
-# create an env file
-cp etc/env/blank.env.json etc/env/development.env.json
+./bin/register /path/to/my/user/storage \
+               /path/to/my/private/key \
+               my@email.address \
+               my-nickname \
+               my-scheme \
+               my-hostname \
+               my-port \
+               my-path
 
 # fill it out
 nano etc/env/development.env.json
@@ -20,25 +24,33 @@ nano etc/env/development.env.json
 NODE_ENV=development node your-script.js
 ```
 
+## configuring
+
+<!-- todo - RC table -->
+
 ## example
 
 ```javascript
-'use strict'
-var sdk = require('lifekey-sdk')
-var opts = {env_file_path: 'dev.env.json'}
-var api = sdk.lifekey(opts)
-var mybot = sdk.agent(opts)
+var {configure, agent, lifekey} = require('lifekey-sdk')
+var config = configure({
+  SCHEME: 'http://',
+  HOSTNAME: 'myhostname.com',
+  PORT: 0,
+  WEBHOOK_PATH: '/my/hook/path',
+  RSA_KEY_PATH: '/path/to/your/private/key',
+  USER_PATH: '/path/to/your/user/record/data'
+})
+var api = lifekey(config)
+var mybot = agent(config)
 
-mybot.on('open', function(express, socket) {
+mybot.on('listening', function(express, socket) {
   console.log('socket listening at', socket.address())
   mybot.close()
+}).on('user_connection_request', function(req) {
+  api.user_connection.request.respond(req.ucr_id, true, function(err, res) {
+    
+  })
 }).on('close', function() {
   console.log('socket closed')
-}).open()
+}).listen()
 ```
-
-## todo
-
-- change `open` to `listen` and related events
-- reconcile the `etc/env` story
-- patch up pkgjson bin option
