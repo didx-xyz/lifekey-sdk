@@ -3,15 +3,15 @@
 
 ## registering
 
-get your user id and private key by calling register with email, nickname and webhook components.
+run the tests first with `npm test`, and then get your user id and private key by providing your email, nickname, and webhook uri parts.
 
 ```bash
-./bin/register my@email.address \
-               my-nickname \
-               my-scheme \
-               my-hostname \
-               my-port \
-               my-path
+./bin/register name@example.com \
+               'example-bot' \
+               'https://' \
+               'example.com' \
+               80 \
+               '/my-hook'
 ```
 
 you, alone, are responsible for your user id and private key (which have to be included when initialising your host) no provisions have been made for managing secrets, here.
