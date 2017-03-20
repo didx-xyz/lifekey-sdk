@@ -61,15 +61,15 @@ function parse_res(res, on_parsed) {
 module.exports = function(env) {
   return {
     user: {
-      update_webhook_uri: function(new_webhook_url, on_update) {
-        if (!new_webhook_url) {
+      update_webhook_uri: function(webhook_url, on_update) {
+        if (!webhook_url) {
           return on_update(new Error('missing required arguments'))
         }
         request(
           'post',
           '/management/device',
           {},
-          JSON.stringify({webhook_url: new_webhook_url}),
+          JSON.stringify({webhook_url: webhook_url}),
           on_update
         )
       }
@@ -158,20 +158,17 @@ module.exports = function(env) {
             on_send
           )
         },
-        respond: function(isar_id, accepted, accepted_fields, on_respond) {
+        respond: function(isar_id, response, on_respond) {
           if (!(isar_id &&
-                typeof accepted === 'boolean' &&
-                Array.isArray(permitted_resources))) {
+                typeof response.accepted === 'boolean' &&
+                Array.isArray(response.permitted_resources))) {
             return on_respond(new Error('missing required arguments'))
           }
           request(
             'post',
             '/management/isa/' + isar_id,
             auth_headers(env.USER, Date.now()),
-            JSON.stringify({
-              accepted: accepted,
-              permitted_resources: accepted_fields
-            }),
+            JSON.stringify(response),
             on_respond
           )
         }
@@ -194,14 +191,12 @@ module.exports = function(env) {
           on_get
         )
       },
-      update: function(isa_id, updated_fields, on_update) {
+      update: function(isa_id, permitted_resources, on_update) {
         request(
           'put',
           '/management/isa/' + isa_id,
           auth_headers(env.USER, Date.now()),
-          JSON.stringify({
-            permitted_resources: updated_fields
-          }),
+          JSON.stringify({permitted_resources: permitted_resources}),
           on_update
         )
       },
@@ -253,7 +248,7 @@ module.exports = function(env) {
           on_get
         )
       },
-      update: function(resource_id, on_update) {
+      update: function(resource_id, resource, on_update) {
         request(
           'put',
           '/resource/' + resource_id,
