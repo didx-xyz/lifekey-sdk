@@ -50,13 +50,9 @@ name | data
 
   mybot.on('listening', function(express, socket) {
     console.log('socket listening at', socket.address())
+  }).on('app_activation_link_clicked', function() {
+    console.log('link clicked!')
     mybot.close()
-  }).on('user_connection_request', function(req) {
-    api.user_connection.request.respond(
-      req.ucr_id,
-      true,
-      console.log
-    )
   }).on('close', function() {
     console.log('socket closed')
   }).listen()
@@ -79,7 +75,6 @@ name | data
 
   mybot.on('listening', function(express, socket) {
     console.log('socket listening at', socket.address())
-    mybot.close()
   }).on('user_connection_request', function(req) {
     api.user_connection.request.respond(
       req.ucr_id,
