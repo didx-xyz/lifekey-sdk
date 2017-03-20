@@ -30,6 +30,7 @@ name | data
 `resource_pushed` | `{isa_id, resource_ids}`
 `sent_activation_email` | `{}`
 `app_activation_link_clicked` | `{}`
+`received_did` | `{did_value}`
 
 ## examples
 
