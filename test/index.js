@@ -73,6 +73,7 @@ describe('lifekey-sdk', function() {
   describe('env', function() {
 
     it('should throw if not given all args', function(done) {
+      
       var cases = [
         {},
         {WEBHOOK_PATH: true},
@@ -115,6 +116,7 @@ describe('lifekey-sdk', function() {
           WEBHOOK_PATH: true,
           SIGNING_KEY_PEM: true
         }
+        // lols ^^
       ]
 
       for (var c in cases) {
