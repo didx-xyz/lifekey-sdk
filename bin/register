@@ -1,34 +1,6 @@
 #!/usr/bin/env node
 
-var http = require('http')
-var fs = require('fs')
-
-var email = process.argv[2]
-var nickname = process.argv[3]
-var hook_scheme = process.argv[4]
-var hook_hostname = process.argv[5]
-var hook_port = process.argv[6]
-var hook_path = process.argv[7]
-
-if (!(email &&
-      nickname &&
-      hook_scheme &&
-      hook_hostname &&
-      hook_port &&
-      hook_path)) {
-  console.log('please provide')
-  console.log('  - your email address')
-  console.log('  - your desired nickname')
-  console.log('  - your webhook scheme')
-  console.log('  - your webhook host')
-  console.log('  - your webhook port')
-  console.log('  - your webhook path')
-  console.log('exiting...')
-  process.exit(1)
-}
-
-var ursa = require('ursa')
-var private_key = ursa.generatePrivateKey(4096)
+'use strict'
 
 function register(options, on_register) {
   
@@ -80,9 +52,9 @@ function register(options, on_register) {
   if (!(options.email &&
         options.nickname &&
         options.private_key &&
-        options.scheme &&
-        options.hostname &&
-        options.port &&
+        options.webhook_scheme &&
+        options.webhook_hostname &&
+        options.webhook_port &&
         options.webhook_path)) {
     return on_register(new Error('missing required arguments'))
   }
@@ -97,9 +69,9 @@ function register(options, on_register) {
   }
 
   var webhook_url = (
-    options.scheme +
-    options.hostname +
-    (!options.port || options.port === 80 || options.port === '80' ? '' : ':' + options.port) +
+    options.webhook_scheme +
+    options.webhook_hostname +
+    (!options.webhook_port || options.webhook_port === 80 || options.webhook_port === '80' ? '' : ':' + options.webhook_port) +
     options.webhook_path
   )
 
@@ -120,26 +92,28 @@ function register(options, on_register) {
   )
 }
 
-register({
-  email: email,
-  nickname: nickname,
-  private_key: private_key,
-  scheme: hook_scheme,
-  hostname: hook_hostname,
-  port: hook_port,
-  webhook_path: hook_path
-}, function(err, res) {
+var fs = require('fs')
+var http = require('http')
+
+try {
+  var args = JSON.parse(process.argv[2])
+} catch (e) {
+  console.log(e)
+  process.exit(1)
+}
+
+var ursa = require('ursa')
+args.private_key = ursa.generatePrivateKey(4096)
+
+register(args, function(err, res) {
   if (err) {
     console.log('error while attemtping to register', err)
     process.exit(1)
   }
   
-  console.log('user registration successful!')
-  console.log('your user credentials are displayed below...')
-  
   console.log({
     USER_ID: res.id,
-    SIGNING_KEY_PEM: private_key.toPrivatePem('utf8')
+    SIGNING_KEY_PEM: args.private_key.toPrivatePem('utf8')
   })
 
   process.exit(0)
