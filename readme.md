@@ -6,12 +6,14 @@
 run the tests first with `npm test`, and then get your user id and private key by providing your email, nickname, and webhook uri parts.
 
 ```bash
-./bin/register name@example.com \
-               'example-bot' \
-               'https://' \
-               'example.com' \
-               80 \
-               '/my-hook'
+./bin/register '{
+  "email": "name@example.com",
+  "nickname": "example-bot",
+  "webhook_scheme": "https://",
+  "webhook_hostname": "example.com",
+  "webhook_port": 80,
+  "webhook_path": "/my-hook"
+}' > ~/example-bot.json
 ```
 
 you, alone, are responsible for your user id and private key (which have to be included when initialising your host) no provisions have been made for managing secrets, here.
