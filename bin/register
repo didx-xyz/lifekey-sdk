@@ -3,52 +3,6 @@
 'use strict'
 
 function register(options, on_register) {
-  
-  function sign(plain, private_key) {
-    return private_key.hashAndSign(
-      'sha256',
-      plain,
-      'utf8',
-      'base64',
-      false
-    )
-  }
-
-  function parse_res(res, on_parsed) {
-    var r = ''
-    res.on('data', function(data) {
-      r += data
-    }).on('end', function() {
-      try {
-        r = JSON.parse(r)
-      } catch (e) {
-        return on_parsed(e)
-      }
-      if (r.error) return on_parsed(new Error(r.message))
-      return on_parsed(null, r)
-    })
-  }
-
-  function request(method, path, headers, body, on_send) {
-    var h = {'content-type': 'application/json'}
-    if (headers) {
-      Object.keys(headers).forEach(function(k) {
-        h[k] = headers[k]
-      })
-    }
-    return http.request({
-      host: 'staging.api.lifekey.cnsnt.io',
-      path: path,
-      method: method,
-      headers: h
-    }).on('response', function(res) {
-      parse_res(res, function(err, r) {
-      if (err) return on_send(err)
-      return on_send(null, r.body)
-    })
-    }).on('error', on_send).end(body || null)
-  }
-  
   if (!(options.email &&
         options.nickname &&
         options.private_key &&
@@ -63,7 +17,13 @@ function register(options, on_register) {
 
   try {
     var public_key = options.private_key.toPublicPem('utf8')
-    var signed_proof = sign(plaintext_proof, options.private_key)
+    var signed_proof = options.private_key.hashAndSign(
+      'sha256',
+      plaintext_proof,
+      'utf8',
+      'base64',
+      false
+    )
   } catch (e) {
     return on_register(e)
   }
@@ -75,10 +35,25 @@ function register(options, on_register) {
     options.webhook_path
   )
 
-  request(
-    'post',
-    '/management/register',
-    {},
+  http.request({
+    host: 'staging.api.lifekey.cnsnt.io',
+    path: '/management/register',
+    method: 'post',
+    headers: {'content-type': 'application/json'}
+  }).on('response', function(res) {
+    var r = ''
+    res.on('data', function(data) {
+      r += data
+    }).on('end', function() {
+      try {
+        r = JSON.parse(r)
+      } catch (e) {
+        return on_register(e)
+      }
+      if (r.error) return on_register(new Error(r.message))
+      return on_register(null, r.body)
+    })
+  }).on('error', on_register).end(
     JSON.stringify({
       email: options.email,
       nickname: options.nickname,
@@ -87,8 +62,7 @@ function register(options, on_register) {
       public_key: public_key,
       plaintext_proof: plaintext_proof,
       signed_proof: signed_proof
-    }),
-    on_register
+    })
   )
 }
 
