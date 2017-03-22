@@ -7,6 +7,9 @@
     "test": "NODE_ENV=development istanbul test _mocha -- --recursive --use_strict --bail --prof --check-leaks --no-exit -R spec",
     "todo": "leasot --skip-unsupported --ignore=node_modules/**/* {test,lib,etc,bin}/**/*.js; exit 0"
   },
+  "bin": {
+    "lifekey-register": "./bin/register"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
