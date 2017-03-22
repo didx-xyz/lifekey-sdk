@@ -39,7 +39,7 @@ function auth_headers(user, plain) {
   return {
     'x-cnsnt-id': user.ID,
     'x-cnsnt-plain': plain,
-    'x-cnsnt-signed': sign(plain, user.PRIVATE_KEY)
+    'x-cnsnt-signed': sign('' + plain, user.PRIVATE_KEY)
   }
 }
 
