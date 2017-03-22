@@ -137,8 +137,7 @@ name | data
   }).on('information_sharing_agreement_request_accepted', function(msg) {
     console.log('ISAR accepted', msg.data)
     api.information_sharing_agreement.pull(msg.data.isa_id, function(err, res) {
-      // res.user_data is an array with identifiers for resources
-      // fetch them with api.resoures.get_one
+      // res.user_data is an array of resources
       if (err) return console.log(err)
       api.information_sharing_agreement.push(msg.data.isa_id, [{
         name: 'pirate name',
