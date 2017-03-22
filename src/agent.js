@@ -27,9 +27,7 @@ module.exports = function(env) {
 
   server = express()
   server.enable('trust proxy')
-  if (!~env._.indexOf('istanbul')) {
-    server.use(morgan('dev'))
-  }
+  if (env.MORGAN) server.use(morgan('dev'))
   server.use(cors(/* TODO cors settings */))
   server.use(bodyParser.json())
 
