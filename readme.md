@@ -22,6 +22,7 @@ you, alone, are responsible for your user id and private key (which have to be i
 
 name | data
 ---- | ----
+`user_connection_request` | `{ucr_id, from_id}`
 `user_connection_created` | `{uc_id, to_id, from_id}`
 `user_connection_deleted` | `{uc_id}`
 `information_sharing_agreement_request` | `{from_id, isar_id}`
