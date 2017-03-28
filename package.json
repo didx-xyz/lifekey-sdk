@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=development istanbul test _mocha -- --recursive --use_strict --bail --prof --check-leaks --no-exit -R spec",
+    "test": "NODE_ENV=development istanbul test _mocha -- --recursive --bail --check-leaks --no-exit -R spec",
     "todo": "leasot --skip-unsupported --ignore=node_modules/**/* {test,lib,etc,bin}/**/*.js; exit 0"
   },
   "bin": {
