@@ -324,7 +324,9 @@ module.exports = function(env) {
           // resource.issued_for mixed (user id or did for whom this claim is issued)
           // resource.creator mixed (you)
           // resource.additional_fields object (gets included in the "claim" object such that each field is merged directly - each additional field must map to a field in your jsonld definition (which is referenced in the @context array))
-          if (!(resource.context &&
+          if (!(typeof resource === 'object' &&
+                resource !== null &&
+                resource.context &&
                 resource.is_credential &&
                 resource.issued_for &&
                 resource.created_at &&
@@ -351,8 +353,8 @@ module.exports = function(env) {
             signatureValue: ''
           }
 
-          Object.keys(additional_fields).forEach(function(field) {
-            claim_instance.claim[field] = additional_fields[field]
+          Object.keys(resource.additional_fields).forEach(function(field) {
+            claim_instance.claim[field] = resource.additional_fields[field]
           })
 
           claim_instance.signatureValue = sign(
