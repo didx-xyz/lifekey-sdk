@@ -1,6 +1,7 @@
 
 var http = require('http')
 
+var {expect} = require('chai')
 var ursa = require('ursa')
 
 describe('lifekey-sdk', function() {
@@ -117,6 +118,90 @@ describe('lifekey-sdk', function() {
         return done(new Error('keypair not in env map'))
       }
       return done()
+    })
+  })
+
+  describe('lifekey', function() {
+    var private_key_pem = ursa.generatePrivateKey(4096).toPrivatePem('utf8')
+    var api = require('../src/lifekey')(
+      require('../src/env')({
+        PORT: 3000,
+        WEBHOOK_PATH: '/',
+        SIGNING_KEY_PEM: private_key_pem,
+        USER_ID: 1
+      })
+    )
+
+    describe('resource', function() {
+
+      describe('verifiable_claim', function() {
+
+        describe('create', function() {
+
+          it('should return with an error if any arguments are missing', function(done) {
+            api.resource.verifiable_claim.create(null, function(err, claim) {
+              if (err) return done()
+              else return done(new Error('should not have been called'))
+            })
+          })
+
+          it('should return a verifiable claim suitable for embedding into a resource or isa api call', function(done) {
+            api.resource.verifiable_claim.create({
+              context: ['http://schema.cnsnt.io/pirate_name'],
+              is_credential: true,
+              issued_for: 2,
+              created_at: Date.now(),
+              additional_fields: {
+                pirateName: 'long-john silver'
+              }
+            }, function(err, claim) {
+              if (err) return done(err)
+              expect(!!claim.signatureValue).to.equal(true)
+              done()
+            })
+          })
+        })
+
+        describe('verify', function() {
+          var private_key = ursa.coercePrivateKey(private_key_pem)
+          var public_key_pem = private_key.toPublicPem('utf8')
+
+          it('should respond with an error if required fields of a verifiable claim are missing', function(done) {
+            api.resource.verifiable_claim.verify(
+              {},
+              public_key_pem,
+              function(err, verified) {
+                if (err) return done()
+                else return done(new Error('should not have been called'))
+              }
+            )
+          })
+
+          it('should respond with a boolean indicating whether the claim is verified', function(done) {
+            api.resource.verifiable_claim.create({
+              context: ['http://schema.cnsnt.io/pirate_name'],
+              is_credential: true,
+              issued_for: 2,
+              created_at: Date.now(),
+              additional_fields: {
+                pirateName: 'long-john silver'
+              }
+            }, function(err, claim) {
+              if (err) return done(err)
+              api.resource.verifiable_claim.verify(
+                claim,
+                public_key_pem,
+                function(err, verified) {
+                  if (err) return done(err)
+                  expect(typeof verified).to.equal('boolean')
+                  expect(verified).to.equal(true)
+                  done()
+                }
+              )
+            })
+          })
+        })
+      })
     })
   })
 })
