@@ -13,6 +13,9 @@ module.exports = function(env) {
 
   var agent = new events.EventEmitter
 
+  agent.middleware = function() {
+    return server
+  }
   agent.listen = function() {
     http_server = server.listen(env.PORT, function() {
       agent.emit('listening', server, http_server)
