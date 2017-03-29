@@ -58,6 +58,23 @@ function parse_res(res, on_parsed) {
   })
 }
 
+function validate_user(user) {
+  if (typeof user != 'object') throw new Error('user parameter should be an object')
+  if (!user.email)             throw new Error('user.email is required')
+  if (!user.nickname)          throw new Error('user.nickname is required')
+  if (!user.webhook_url)       throw new Error('user.webhook_url is required')
+}
+
+function generate_user_keypair(user) {
+  if (typeof user != 'object') throw new Error('user parameter should be an object')
+  user.private_key          = ursa.generatePrivateKey(4096)
+  user.public_key_algorithm = 'rsa'
+  user.public_key           = user.private_key.toPublicPem('utf8')
+  user.plaintext_proof      = '' + Date.now()
+  user.signed_proof         = user.private_key.hashAndSign('sha256', user.plaintext_proof, 'utf8', 'base64',false)
+  return user
+}
+
 module.exports = function(env) {
   return {
     user: {
@@ -71,6 +88,26 @@ module.exports = function(env) {
           {},
           JSON.stringify({webhook_url: webhook_url}),
           on_update
+        )
+      },
+      register: function(user, on_register) {
+        // Throw on any missing fields
+        validate_user(user)
+
+        user = generate_user_keypair(user)
+        let reg_user = JSON.parse(JSON.stringify(user))
+        delete reg_user.private_key
+        request(
+          'post',
+          '/management/register',
+          {},
+          JSON.stringify(reg_user),
+          (err, reg) => {
+            if (err) return on_register(err, null)
+            reg_user.USER_ID = reg.id
+            reg_user.SIGNING_KEY_PEM = user.private_key.toPrivatePem('utf8')
+            on_register(null, reg_user)
+          }
         )
       }
     },
@@ -299,3 +336,4 @@ module.exports = function(env) {
     }
   }
 }
+
