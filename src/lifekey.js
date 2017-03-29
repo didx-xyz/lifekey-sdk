@@ -105,10 +105,13 @@ module.exports = function(env) {
           on_update
         )
       },
+      /**
+       * register a new service or user
+       * @param user object
+       * @param on_register function
+       */
       register: function(user, on_register) {
-        // Throw on any missing fields
         validate_user(user)
-
         user = generate_user_keypair(user)
         let reg_user = JSON.parse(JSON.stringify(user))
         delete reg_user.private_key
