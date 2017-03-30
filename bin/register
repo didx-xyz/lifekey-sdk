@@ -9,8 +9,7 @@ function register(options, on_register) {
         options.webhook_scheme &&
         options.webhook_hostname &&
         options.webhook_port &&
-        options.webhook_path &&
-        options.actions_path)) {
+        options.webhook_path)) {
     return on_register(new Error('missing required arguments'))
   }
 
@@ -36,12 +35,14 @@ function register(options, on_register) {
     options.webhook_path
   )
 
-  var actions_url = (
-    options.webhook_scheme +
-    options.webhook_hostname +
-    (!options.webhook_port || options.webhook_port === 80 || options.webhook_port === '80' ? '' : ':' + options.webhook_port) +
-    options.actions_path
-  )
+  if (options.actions_path) {
+    var actions_url = (
+      options.webhook_scheme +
+      options.webhook_hostname +
+      (!options.webhook_port || options.webhook_port === 80 || options.webhook_port === '80' ? '' : ':' + options.webhook_port) +
+      options.actions_path
+    )
+  }
 
   http.request({
     host: 'staging.api.lifekey.cnsnt.io',
@@ -66,7 +67,7 @@ function register(options, on_register) {
       email: options.email,
       nickname: options.nickname,
       webhook_url: webhook_url,
-      actions_url: actions_url,
+      actions_url: actions_url || null,
       public_key_algorithm: 'rsa',
       public_key: public_key,
       plaintext_proof: plaintext_proof,
