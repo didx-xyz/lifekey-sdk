@@ -176,6 +176,71 @@ module.exports = function(env) {
       }
     },
     information_sharing_agreement: {
+      actions: {
+        /**
+         * create a new action record
+         * @param action object
+         * @param on_create function
+         */
+        create: function(action, on_create) {
+          if (!(action.purpose &&
+                action.license &&
+                action.entities &&
+                action.duration_days)) {
+            return on_create(new Error('missing required arguments'))
+          }
+          request(
+            'post',
+            '/management/action',
+            auth_headers(env.USER, Date.now()),
+            JSON.stringify(action),
+            on_create
+          )
+        },
+        /**
+         * enumerate all actions related to the specified user
+         * @param user_id mixed
+         * @param on_get function
+         */
+        get_all: function(user_id, on_get) {
+          request(
+            'get',
+            '/management/action/' + user_id,
+            auth_headers(env.USER, Date.now()),
+            null,
+            on_get
+          )
+        },
+        /**
+         * get a single action record
+         * @param user_id mixed
+         * @param action_id mixed
+         * @param on_get function
+         */
+        get_one: function(user_id, action_id, on_get) {
+          request(
+            'get',
+            '/management/action/' + user_id + '/' + action_id,
+            auth_headers(env.USER, Date.now()),
+            null,
+            on_get
+          )
+        },
+        /**
+         * delete the specified action
+         * @param action_id mixed
+         * @param on_delete function
+         */
+        delete: function(action_id, on_delete) {
+          request(
+            'delete',
+            '/management/action/' + action_id,
+            auth_headers(env.USER, Date.now()),
+            null,
+            on_delete
+          )
+        }
+      },
       request: {
         /**
          * request isa with specified user
@@ -224,6 +289,25 @@ module.exports = function(env) {
             on_respond
           )
         }
+      },
+      /**
+       * create an information sharing agreement with the specified user and action record
+       * @param user_id mixed
+       * @param action_id mixed
+       * @param response object
+       * @param on_establish function
+       */
+      establish: function(user_id, action_id, response, on_establish) {
+        if (!(Array.isArray(response.entities) && response.entities.length)) {
+          return on_establish(new Error('missing required arguments'))
+        }
+        request(
+          'post',
+          '/management/isa/' + user_id + '/' + action_id,
+          auth_headers(env.USER, Date.now()),
+          JSON.stringify(response),
+          on_establish
+        )
       },
       /**
        * enumerate all active and unacknowledged isas
