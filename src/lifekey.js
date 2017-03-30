@@ -75,14 +75,18 @@ function validate_user(user) {
   if (!user.webhook_url)       throw new Error('user.webhook_url is required')
 }
 
-function generate_user_keypair(user) {
-  if (typeof user != 'object') throw new Error('user parameter should be an object')
-  user.private_key          = ursa.generatePrivateKey(4096)
-  user.public_key_algorithm = 'rsa'
-  user.public_key           = user.private_key.toPublicPem('utf8')
-  user.plaintext_proof      = '' + Date.now()
-  user.signed_proof         = user.private_key.hashAndSign('sha256', user.plaintext_proof, 'utf8', 'base64',false)
-  return user
+function generate_user_keypair(user, on_generated) {
+  try {
+    validate_user(user)
+    var private_key = ursa.generatePrivateKey(4096)
+    user.public_key_algorithm = 'rsa'
+    user.public_key = private_key.toPublicPem('utf8')
+    user.plaintext_proof = '' + Date.now()
+    user.signed_proof = private_key.hashAndSign('sha256', user.plaintext_proof, 'utf8', 'base64', false)
+    return on_generated(null, user, private_key.toPrivatePem('utf8'))
+  } catch (err) {
+    return on_generated(err, null, null)
+  }
 }
 
 module.exports = function(env) {
@@ -111,22 +115,21 @@ module.exports = function(env) {
        * @param on_register function
        */
       register: function(user, on_register) {
-        validate_user(user)
-        user = generate_user_keypair(user)
-        var reg_user = JSON.parse(JSON.stringify(user))
-        delete reg_user.private_key
-        request(
-          'post',
-          '/management/register',
-          {},
-          JSON.stringify(reg_user),
-          function (err, reg) {
-            if (err) return on_register(err, null)
-            reg_user.USER_ID = reg.id
-            reg_user.SIGNING_KEY_PEM = user.private_key.toPrivatePem('utf8')
-            on_register(null, reg_user)
-          }
-        )
+        generate_user_keypair(user, function(err, reg_user, private_key) {
+          if (err) return on_register(err, null)
+          request(
+            'post',
+            '/management/register',
+            {},
+            JSON.stringify(reg_user),
+            function (err, reg) {
+              if (err) return on_register(err, null)
+              reg_user.USER_ID = reg.id
+              reg_user.SIGNING_KEY_PEM = user.private_key
+              return on_register(null, reg_user)
+            }
+          )
+        })
       }
     },
     user_connection: {
