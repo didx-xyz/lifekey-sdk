@@ -82,7 +82,7 @@ function generate_user_keypair(user, on_generated) {
     user.public_key_algorithm = 'rsa'
     user.public_key = private_key.toPublicPem('utf8')
     user.plaintext_proof = '' + Date.now()
-    user.signed_proof = private_key.hashAndSign('sha256', user.plaintext_proof, 'utf8', 'base64', false)
+    user.signed_proof = sign(user.plaintext_proof, private_key)
     return on_generated(null, user, private_key.toPrivatePem('utf8'))
   } catch (err) {
     return on_generated(err, null, null)
