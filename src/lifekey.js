@@ -504,6 +504,29 @@ module.exports = function(env) {
           on_get
         )
       }
+    },
+    profile: {
+      colour: function(colour, on_update) {
+        if (!(/^#(?:[0-9a-f]{3}){1,2}$/i).test(colour)) {
+          return on_update(new Error('invalid colour code given'))
+        }
+        request(
+          'put',
+          '/profile/colour',
+          auth_headers(env.USER, Date.now()),
+          JSON.stringify({colour: colour}),
+          on_update
+        )
+      },
+      image: function(image_uri, on_update) {
+        request(
+          'put',
+          '/profile/image',
+          auth_headers(env.USER, Date.now()),
+          JSON.stringify({image_uri: image_uri}),
+          on_update
+        )
+      }
     }
   }
 }
