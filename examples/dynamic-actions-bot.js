@@ -13,9 +13,7 @@ var mybot = agent(config)
 
 mybot.on('listening', function(express, socket) {
   console.log('socket listening at', socket.address())
-}).on(
-  'app_activation_link_clicked',
-  mybot.close.bind(mybot, null)
-).on('close', function() {
-  console.log('socket closed')
+}).on('get_actions', function(user, respond) {
+  if (user.id === 'foo') respond([1, 2, 3])
+  else respond([4, 5, 6])
 }).listen()
