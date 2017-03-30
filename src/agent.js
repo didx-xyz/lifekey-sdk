@@ -3,6 +3,15 @@
 
 var events = require('events')
 
+function return_actions(ids) {
+  this.status(200).json({
+    error: false,
+    status: 200,
+    message: 'ok',
+    body: ids
+  })
+}
+
 module.exports = function(env) {
   var cors = require('cors')
   var morgan = require('morgan')
@@ -30,6 +39,15 @@ module.exports = function(env) {
   if (env.MORGAN) server.use(morgan('dev'))
   server.use(cors(/* TODO cors settings */))
   server.use(bodyParser.json())
+
+  if (env.ACTIONS_PATH) {
+    server.get(env.ACTIONS_PATH, function(req, res) {
+      agent.emit('get_actions', {
+        id: req.headers['x-cnsnt-id'],
+        did: req.headers['x-cnsnt-did']
+      }, return_actions.bind(res))
+    })
+  }
 
   server.post(env.WEBHOOK_PATH, function(req, res) {
     agent.emit('webhook', req.body.type || 'unknown', req.body, server, http_server)
