@@ -113,14 +113,14 @@ module.exports = function(env) {
       register: function(user, on_register) {
         validate_user(user)
         user = generate_user_keypair(user)
-        let reg_user = JSON.parse(JSON.stringify(user))
+        var reg_user = JSON.parse(JSON.stringify(user))
         delete reg_user.private_key
         request(
           'post',
           '/management/register',
           {},
           JSON.stringify(reg_user),
-          (err, reg) => {
+          function (err, reg) {
             if (err) return on_register(err, null)
             reg_user.USER_ID = reg.id
             reg_user.SIGNING_KEY_PEM = user.private_key.toPrivatePem('utf8')
