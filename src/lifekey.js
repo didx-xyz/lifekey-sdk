@@ -83,7 +83,7 @@ module.exports = function(env) {
         request(
           'post',
           '/management/device',
-          {},
+          auth_headers(env.USER, Date.now()),
           JSON.stringify({webhook_url: webhook_url}),
           on_update
         )
