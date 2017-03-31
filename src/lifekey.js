@@ -125,7 +125,7 @@ module.exports = function(env) {
             function (err, reg) {
               if (err) return on_register(err, null)
               reg_user.USER_ID = reg.id
-              reg_user.SIGNING_KEY_PEM = user.private_key
+              reg_user.SIGNING_KEY_PEM = private_key
               return on_register(null, reg_user)
             }
           )
