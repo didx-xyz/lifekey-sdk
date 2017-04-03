@@ -183,7 +183,8 @@ module.exports = function(env) {
          * @param on_create function
          */
         create: function(action, on_create) {
-          if (!(action.purpose &&
+          if (!(action.name &&
+                action.purpose &&
                 action.license &&
                 action.entities &&
                 action.duration_days)) {
@@ -214,13 +215,13 @@ module.exports = function(env) {
         /**
          * get a single action record
          * @param user_id mixed
-         * @param action_id mixed
+         * @param action_name mixed
          * @param on_get function
          */
-        get_one: function(user_id, action_id, on_get) {
+        get_one: function(user_id, action_name, on_get) {
           request(
             'get',
-            '/management/action/' + user_id + '/' + action_id,
+            '/management/action/' + user_id + '/' + action_name,
             auth_headers(env.USER, Date.now()),
             null,
             on_get
@@ -228,13 +229,13 @@ module.exports = function(env) {
         },
         /**
          * delete the specified action
-         * @param action_id mixed
+         * @param action_name mixed
          * @param on_delete function
          */
-        delete: function(action_id, on_delete) {
+        delete: function(action_name, on_delete) {
           request(
             'delete',
-            '/management/action/' + action_id,
+            '/management/action/' + action_name,
             auth_headers(env.USER, Date.now()),
             null,
             on_delete
@@ -293,20 +294,22 @@ module.exports = function(env) {
       /**
        * create an information sharing agreement with the specified user and action record
        * @param user_id mixed
-       * @param action_id mixed
+       * @param action_name mixed
        * @param response object
-       * @param on_establish function
+       * @param on_create function
        */
-      establish: function(user_id, action_id, response, on_establish) {
-        if (!(Array.isArray(response.entities) && response.entities.length)) {
-          return on_establish(new Error('missing required arguments'))
+      create: function(user_id, action_name, response, on_create) {
+        if (!(user_id && action_name) ||
+            !(Array.isArray(response.entities) &&
+              response.entities.length)) {
+          return on_create(new Error('missing required arguments'))
         }
         request(
           'post',
-          '/management/isa/' + user_id + '/' + action_id,
+          '/management/isa/' + user_id + '/' + action_name,
           auth_headers(env.USER, Date.now()),
           JSON.stringify(response),
-          on_establish
+          on_create
         )
       },
       /**
