@@ -45,10 +45,11 @@ module.exports = function(env) {
 
   if (env.ACTIONS_PATH) {
     server.get(env.ACTIONS_PATH, function(req, res) {
-      agent.emit('get_actions', {
+      var heard = agent.emit('get_actions', {
         id: req.headers['x-cnsnt-id'],
         did: req.headers['x-cnsnt-did']
       }, return_actions.bind(res))
+      if (!heard) return_actions.call(res, [])
     })
   }
 
