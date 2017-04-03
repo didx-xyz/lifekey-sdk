@@ -129,10 +129,11 @@ module.exports = function(env) {
         if (!user.email) return on_register(new Error('user.email is required'))
         if (!user.nickname) return on_register(new Error('user.nickname is required'))
         if (!user.webhook_url) return on_register(new Error('user.webhook_url is required'))
+        if (!user.actions_url) return on_register(new Error('user.actions_url is required'))
         var private_key = ursa.generatePrivateKey(4096)
         user.public_key_algorithm = 'rsa'
         user.public_key = private_key.toPublicPem('utf8')
-        user.plaintext_proof = Date.now()
+        user.plaintext_proof = '' + Date.now()
         try {
           user.signed_proof = sign(user.plaintext_proof, private_key)
         } catch (err) {
@@ -146,7 +147,7 @@ module.exports = function(env) {
           function(err, reg) {
             if (err) return on_register(err)
             user.USER_ID = reg.id
-            user.SIGNING_KEY_PEM = private_key
+            user.SIGNING_KEY_PEM = private_key.toPrivatePem('utf8')
             return on_register(null, user)
           }
         )
