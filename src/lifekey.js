@@ -8,7 +8,7 @@ var ursa = require('ursa')
 function sign(plain, private_key) {
   return private_key.hashAndSign(
     'sha256',
-    plain,
+    '' + plain,
     'utf8',
     'base64',
     false
@@ -49,7 +49,7 @@ function auth_headers(user, plain) {
   return {
     'x-cnsnt-id': user.ID,
     'x-cnsnt-plain': plain,
-    'x-cnsnt-signed': sign('' + plain, user.PRIVATE_KEY)
+    'x-cnsnt-signed': sign(plain, user.PRIVATE_KEY)
   }
 }
 
@@ -68,36 +68,46 @@ function parse_res(res, on_parsed) {
   })
 }
 
-function validate_user(user) {
-  if (typeof user != 'object') throw new Error('user parameter should be an object')
-  if (!user.email)             throw new Error('user.email is required')
-  if (!user.nickname)          throw new Error('user.nickname is required')
-  if (!user.webhook_url)       throw new Error('user.webhook_url is required')
-}
-
-function generate_user_keypair(user, on_generated) {
-  try {
-    validate_user(user)
-    var private_key = ursa.generatePrivateKey(4096)
-    user.public_key_algorithm = 'rsa'
-    user.public_key = private_key.toPublicPem('utf8')
-    user.plaintext_proof = '' + Date.now()
-    user.signed_proof = sign(user.plaintext_proof, private_key)
-    return on_generated(null, user, private_key.toPrivatePem('utf8'))
-  } catch (err) {
-    return on_generated(err, null, null)
-  }
-}
-
 module.exports = function(env) {
   return {
     user: {
+      /**
+       * change the branding colour associated with your user
+       * @param colour string
+       * @param on_update function
+       */
+      colour: function(colour, on_update) {
+        if (!(/^#(?:[0-9a-f]{3}){1,2}$/i).test(colour)) {
+          return on_update(new Error('invalid colour code given'))
+        }
+        request(
+          'put',
+          '/profile/colour',
+          auth_headers(env.USER, Date.now()),
+          JSON.stringify({colour: colour}),
+          on_update
+        )
+      },
+      /**
+       * change the image associated with your user
+       * @param image_uri string
+       * @param on_update function
+       */
+      image: function(image_uri, on_update) {
+        request(
+          'put',
+          '/profile/image',
+          auth_headers(env.USER, Date.now()),
+          JSON.stringify({image_uri: image_uri}),
+          on_update
+        )
+      },
       /**
        * update webhook url for your service
        * @param webhook_url string
        * @param on_update function
        */
-      update_webhook_uri: function(webhook_url, on_update) {
+      webhook_uri: function(webhook_url, on_update) {
         if (!webhook_url) {
           return on_update(new Error('missing required arguments'))
         }
@@ -115,21 +125,31 @@ module.exports = function(env) {
        * @param on_register function
        */
       register: function(user, on_register) {
-        generate_user_keypair(user, function(err, reg_user, private_key) {
-          if (err) return on_register(err, null)
-          request(
-            'post',
-            '/management/register',
-            {},
-            JSON.stringify(reg_user),
-            function (err, reg) {
-              if (err) return on_register(err, null)
-              reg_user.USER_ID = reg.id
-              reg_user.SIGNING_KEY_PEM = private_key
-              return on_register(null, reg_user)
-            }
-          )
-        })
+        if (typeof user !== 'object') return on_register(new Error('user parameter should be an object'))
+        if (!user.email) return on_register(new Error('user.email is required'))
+        if (!user.nickname) return on_register(new Error('user.nickname is required'))
+        if (!user.webhook_url) return on_register(new Error('user.webhook_url is required'))
+        var private_key = ursa.generatePrivateKey(4096)
+        user.public_key_algorithm = 'rsa'
+        user.public_key = private_key.toPublicPem('utf8')
+        user.plaintext_proof = Date.now()
+        try {
+          user.signed_proof = sign(user.plaintext_proof, private_key)
+        } catch (err) {
+          return on_register(err)
+        }
+        request(
+          'post',
+          '/management/register',
+          {},
+          JSON.stringify(user),
+          function(err, reg) {
+            if (err) return on_register(err)
+            user.USER_ID = reg.id
+            user.SIGNING_KEY_PEM = private_key
+            return on_register(null, user)
+          }
+        )
       }
     },
     user_connection: {
@@ -632,29 +652,6 @@ module.exports = function(env) {
           auth_headers(env.USER, Date.now()),
           null,
           on_get
-        )
-      }
-    },
-    profile: {
-      colour: function(colour, on_update) {
-        if (!(/^#(?:[0-9a-f]{3}){1,2}$/i).test(colour)) {
-          return on_update(new Error('invalid colour code given'))
-        }
-        request(
-          'put',
-          '/profile/colour',
-          auth_headers(env.USER, Date.now()),
-          JSON.stringify({colour: colour}),
-          on_update
-        )
-      },
-      image: function(image_uri, on_update) {
-        request(
-          'put',
-          '/profile/image',
-          auth_headers(env.USER, Date.now()),
-          JSON.stringify({image_uri: image_uri}),
-          on_update
         )
       }
     }
