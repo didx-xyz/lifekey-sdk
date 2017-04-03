@@ -22,6 +22,7 @@ you, alone, are responsible for your user id and private key (which have to be i
 
 name | data
 ---- | ----
+`get_actions` | `{id, did}, bound return_actions function`
 `user_connection_request` | `{ucr_id, from_id}`
 `user_connection_created` | `{uc_id, to_id, from_id}`
 `user_connection_deleted` | `{uc_id}`

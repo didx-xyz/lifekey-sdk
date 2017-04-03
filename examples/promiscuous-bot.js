@@ -4,6 +4,7 @@ var {configure, agent, lifekey} = require('lifekey-sdk')
 var config = configure({
   PORT: 3000,
   WEBHOOK_PATH: '/',
+  ACTIONS_PATH: '/actions',
   // credentials go here
 })
 
