@@ -316,9 +316,9 @@ module.exports = function(env) {
           if (!(isa.user_id &&
                 isa.license &&
                 isa.purpose &&
-                Array.isArray(isa.optional_schemas) &&
-                Array.isArray(isa.requested_schemas) &&
-                isa.requested_schemas.length)) {
+                Array.isArray(isa.optional_entities) &&
+                Array.isArray(isa.required_entities) &&
+                isa.required_entities.length)) {
             return on_send(new Error('missing required arguments'))
           }
           request(
@@ -329,7 +329,7 @@ module.exports = function(env) {
               to: isa.user_id,
               purpose: isa.purpose,
               license: isa.license,
-              requested_schemas: isa.requested_schemas
+              required_entities: isa.required_entities
             }),
             on_send
           )
@@ -658,4 +658,3 @@ module.exports = function(env) {
     }
   }
 }
-
