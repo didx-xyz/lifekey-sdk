@@ -43,15 +43,13 @@ module.exports = function(env) {
   server.use(cors(/* TODO cors settings */))
   server.use(bodyParser.json())
 
-  if (env.ACTIONS_PATH) {
-    server.get(env.ACTIONS_PATH, function(req, res) {
-      var heard = agent.emit('get_actions', {
-        id: req.headers['x-cnsnt-id'],
-        did: req.headers['x-cnsnt-did']
-      }, return_actions.bind(res))
-      if (!heard) return_actions.call(res, [])
-    })
-  }
+  server.get(env.ACTIONS_PATH, function(req, res) {
+    var heard = agent.emit('get_actions', {
+      id: req.headers['x-cnsnt-id'],
+      did: req.headers['x-cnsnt-did']
+    }, return_actions.bind(res))
+    if (!heard) return_actions.call(res, [])
+  })
 
   server.post(env.WEBHOOK_PATH, function(req, res) {
     agent.emit('webhook', req.body.type || 'unknown', req.body, server, http_server)
