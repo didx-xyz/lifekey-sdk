@@ -13,7 +13,7 @@ module.exports = function(env) {
     'ACTIONS_PATH',
     'SIGNING_KEY_PEM',
     'USER_ID'
-  ], env_keys = Object.keys(env)
+  ]
 
   required.forEach(function(key) {
     if (typeof env[key] === 'undefined') {
