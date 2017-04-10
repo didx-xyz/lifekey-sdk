@@ -21,6 +21,7 @@ describe('lifekey-sdk', function() {
       agent = require('../src/agent')({
         PORT: 3000,
         WEBHOOK_PATH: '/',
+        ACTIONS_PATH: '/actions',
         _: process.env._
       })
       done()
@@ -93,6 +94,7 @@ describe('lifekey-sdk', function() {
         env({
           PORT: 3000,
           WEBHOOK_PATH: '/',
+          ACTIONS_PATH: '/actions',
           SIGNING_KEY_PEM: 'foo',
           USER_ID: 1
         })
@@ -107,6 +109,7 @@ describe('lifekey-sdk', function() {
         var myenv = env({
           PORT: 3000,
           WEBHOOK_PATH: '/',
+          ACTIONS_PATH: '/actions',
           SIGNING_KEY_PEM: ursa.generatePrivateKey(4096).toPrivatePem('utf8'),
           USER_ID: 1
         })
@@ -127,6 +130,7 @@ describe('lifekey-sdk', function() {
       require('../src/env')({
         PORT: 3000,
         WEBHOOK_PATH: '/',
+        ACTIONS_PATH: '/actions',
         SIGNING_KEY_PEM: private_key_pem,
         USER_ID: 1
       })
