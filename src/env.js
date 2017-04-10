@@ -10,13 +10,16 @@ module.exports = function(env) {
   var required = [
     'PORT',
     'WEBHOOK_PATH',
+    'ACTIONS_PATH',
     'SIGNING_KEY_PEM',
     'USER_ID'
-  ]
-  
-  Object.keys(env).forEach(function(key) {
-    if (!~required.indexOf(key)) {
-      throw new TypeError('expected truthy value for ' + key + ' but got ' + typeof env[key])
+  ], env_keys = Object.keys(env)
+
+  required.forEach(function(key) {
+    if (typeof env[key] === 'undefined') {
+      throw new Error(
+        'expected truthy value for ' + key + ' but got ' + env[key]
+      )
     }
   })
 
