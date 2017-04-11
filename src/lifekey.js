@@ -70,25 +70,9 @@ function parse_res(res, on_parsed) {
 }
 
 module.exports = function(env) {
-  if (env &&
-      env.USER &&
-      env.USER.DID &&
-      typeof env.USER.DID === 'string' &&
-      env.user.DID.length === 64) {
-    console.log('detected DID', env.USER.DID)
-  }
   return {
     user: {
       
-      /**
-       * get a new lifekey api object with did value attached
-       * @param did string
-       */
-      set_did: function(did) {
-        env.USER.DID = did
-        return module.exports(env)
-      },
-
       /**
        * change the address associated with your user
        * @param address string
