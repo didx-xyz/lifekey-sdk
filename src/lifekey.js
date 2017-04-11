@@ -73,6 +73,66 @@ module.exports = function(env) {
   return {
     user: {
       /**
+       * change the address associated with your user
+       * @param address string
+       * @param on_update function
+       */
+      address: function(address, on_update) {
+        request(
+          'put',
+          '/profile/address',
+          auth_headers(env.USER, Date.now()),
+          JSON.stringify({address: address}),
+          on_update
+        )
+      },
+
+      /**
+       * change the tel associated with your user
+       * @param tel string
+       * @param on_update function
+       */
+      tel: function(tel, on_update) {
+        request(
+          'put',
+          '/profile/tel',
+          auth_headers(env.USER, Date.now()),
+          JSON.stringify({tel: tel}),
+          on_update
+        )
+      },
+
+      /**
+       * change the email associated with your user
+       * @param email string
+       * @param on_update function
+       */
+      email: function(email, on_update) {
+        request(
+          'put',
+          '/profile/email',
+          auth_headers(env.USER, Date.now()),
+          JSON.stringify({email: email}),
+          on_update
+        )
+      },
+
+      /**
+       * change the display name associated with your user
+       * @param name string
+       * @param on_update function
+       */
+      name: function(name, on_update) {
+        request(
+          'put',
+          '/profile/name',
+          auth_headers(env.USER, Date.now()),
+          JSON.stringify({name: name}),
+          on_update
+        )
+      },
+      
+      /**
        * change the branding colour associated with your user
        * @param colour string
        * @param on_update function
@@ -89,6 +149,7 @@ module.exports = function(env) {
           on_update
         )
       },
+      
       /**
        * change the image associated with your user
        * @param image_uri string
@@ -103,6 +164,7 @@ module.exports = function(env) {
           on_update
         )
       },
+      
       /**
        * update webhook url for your service
        * @param webhook_url string
@@ -159,18 +221,18 @@ module.exports = function(env) {
       request: {
         /**
          * request connection with specified user
-         * @param user_id mixed
+         * @param user_did mixed
          * @param on_send function
          */
-        send: function(user_id, on_send) {
-          if (!user_id) {
+        send: function(user_did, on_send) {
+          if (!user_did) {
             return on_send(new Error('missing required arguments'))
           }
           request(
             'post',
             '/management/connection',
             auth_headers(env.USER, Date.now()),
-            JSON.stringify({target: user_id}),
+            JSON.stringify({target: user_did}),
             on_send
           )
         },
@@ -201,23 +263,6 @@ module.exports = function(env) {
         request(
           'get',
           '/management/connection',
-          auth_headers(env.USER, Date.now()),
-          null,
-          on_get
-        )
-      },
-      /**
-       * detail a specified connection
-       * @param uc_id mixed
-       * @param on_get function
-       */
-      get_one: function(uc_id, on_get) {
-        if (!uc_id) {
-          return on_get(new Error('missing required arguments'))
-        }
-        request(
-          'get',
-          '/management/connection/' + uc_id,
           auth_headers(env.USER, Date.now()),
           null,
           on_get
@@ -266,13 +311,13 @@ module.exports = function(env) {
         },
         /**
          * enumerate all actions related to the specified user
-         * @param user_id mixed
+         * @param user_did mixed
          * @param on_get function
          */
-        get_all: function(user_id, on_get) {
+        get_all: function(user_did, on_get) {
           request(
             'get',
-            '/management/action/' + user_id,
+            '/management/action/' + user_did,
             auth_headers(env.USER, Date.now()),
             null,
             on_get
@@ -280,14 +325,14 @@ module.exports = function(env) {
         },
         /**
          * get a single action record
-         * @param user_id mixed
+         * @param user_did mixed
          * @param action_name mixed
          * @param on_get function
          */
-        get_one: function(user_id, action_name, on_get) {
+        get_one: function(user_did, action_name, on_get) {
           request(
             'get',
-            '/management/action/' + user_id + '/' + action_name,
+            '/management/action/' + user_did + '/' + action_name,
             auth_headers(env.USER, Date.now()),
             null,
             on_get
@@ -315,7 +360,7 @@ module.exports = function(env) {
          * @param on_send function
          */
         send: function(isa, on_send) {
-          if (!(isa.user_id &&
+          if (!(isa.user_did &&
                 isa.license &&
                 isa.purpose &&
                 Array.isArray(isa.optional_entities) &&
@@ -328,7 +373,7 @@ module.exports = function(env) {
             '/management/isa',
             auth_headers(env.USER, Date.now()),
             JSON.stringify({
-              to: isa.user_id,
+              to: isa.user_did,
               purpose: isa.purpose,
               license: isa.license,
               required_entities: isa.required_entities
@@ -364,15 +409,15 @@ module.exports = function(env) {
        * @param response object
        * @param on_create function
        */
-      create: function(user_id, action_name, response, on_create) {
-        if (!(user_id && action_name) ||
+      create: function(user_did, action_name, response, on_create) {
+        if (!(user_did && action_name) ||
             !(Array.isArray(response.entities) &&
               response.entities.length)) {
           return on_create(new Error('missing required arguments'))
         }
         request(
           'post',
-          '/management/isa/' + user_id + '/' + action_name,
+          '/management/isa/' + user_did + '/' + action_name,
           auth_headers(env.USER, Date.now()),
           JSON.stringify(response),
           on_create
@@ -500,7 +545,7 @@ module.exports = function(env) {
             claim: {
               isCredential: resource.is_credential,
               issuedFor: resource.issued_for,
-              creator: env.USER.ID,
+              creator: env.USER.DID,
               createdAt: resource.created_at
             },
             signatureValue: ''
@@ -648,10 +693,10 @@ module.exports = function(env) {
        * @param alias string
        * @param on_get
        */
-      get: function(user_id, alias, on_get) {
+      get: function(user_did, alias, on_get) {
         request(
           'get',
-          '/management/key/' + user_id + (alias ? '?alias=' + alias : ''),
+          '/management/key/' + user_did + (alias ? '?alias=' + alias : ''),
           auth_headers(env.USER, Date.now()),
           null,
           on_get
