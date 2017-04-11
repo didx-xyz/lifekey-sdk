@@ -45,7 +45,6 @@ module.exports = function(env) {
 
   server.get(env.ACTIONS_PATH, function(req, res) {
     var heard = agent.emit('get_actions', {
-      id: req.headers['x-cnsnt-id'],
       did: req.headers['x-cnsnt-did']
     }, return_actions.bind(res))
     if (!heard) return_actions.call(res, [])

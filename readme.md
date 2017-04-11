@@ -22,11 +22,11 @@ you, alone, are responsible for your user id and private key (which have to be i
 
 name | data
 ---- | ----
-`get_actions` | `{id, did}, bound return_actions function`
-`user_connection_request` | `{ucr_id, from_id}`
-`user_connection_created` | `{uc_id, to_id, from_id}`
+`get_actions` | `{did}, bound return_actions function`
+`user_connection_request` | `{ucr_id, from_did}`
+`user_connection_created` | `{uc_id, to_id, from_did}`
 `user_connection_deleted` | `{uc_id}`
-`information_sharing_agreement_request` | `{from_id, isar_id}`
+`information_sharing_agreement_request` | `{from_did, isar_id}`
 `information_sharing_agreement_request_rejected` | `{isar_id}`
 `information_sharing_agreement_request_accepted` | `{isa_id}`
 `information_sharing_agreement_deleted` | `{isa_id}`
@@ -34,4 +34,4 @@ name | data
 `resource_pushed` | `{isa_id, resource_ids}`
 `sent_activation_email` | `{}`
 `app_activation_link_clicked` | `{}`
-`received_did` | `{did_value}`
+`received_did` | `{did_value, did_address}`
