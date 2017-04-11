@@ -61,6 +61,7 @@ function parse_res(res, on_parsed) {
     try {
       r = JSON.parse(r)
     } catch (e) {
+      console.log('from server', r)
       return on_parsed(e)
     }
     if (r.error) return on_parsed(new Error(r.message))
