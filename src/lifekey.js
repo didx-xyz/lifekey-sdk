@@ -72,6 +72,16 @@ function parse_res(res, on_parsed) {
 module.exports = function(env) {
   return {
     user: {
+      
+      /**
+       * get a new lifekey api object with did value attached
+       * @param did string
+       */
+      set_did: function(did) {
+        env.USER.DID = did
+        return module.exports(env)
+      },
+
       /**
        * change the address associated with your user
        * @param address string
