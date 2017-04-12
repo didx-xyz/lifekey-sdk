@@ -76,7 +76,7 @@ module.exports = function(env) {
        * get your did value and address
        * @param on_get function
        */
-      profile: function(on_get) {
+      get_profile: function(on_get) {
         request(
           'get',
           '/profile',
