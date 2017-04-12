@@ -76,10 +76,10 @@ module.exports = function(env) {
        * get your did value and address
        * @param on_get function
        */
-      get_did: function(on_get) {
+      profile: function(on_get) {
         request(
           'get',
-          '/profile/did',
+          '/profile',
           auth_headers(env.USER, Date.now()),
           null,
           on_get
