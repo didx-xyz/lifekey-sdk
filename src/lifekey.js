@@ -72,7 +72,32 @@ function parse_res(res, on_parsed) {
 module.exports = function(env) {
   return {
     user: {
-      
+      /**
+       * get your did value and address
+       * @param on_get function
+       */
+      get_did: function(on_get) {
+        request(
+          'get',
+          '/profile/did',
+          auth_headers(env.USER, Date.now()),
+          null,
+          on_get
+        )
+      },
+      /**
+       * get your thanks balance
+       * @param on_get function
+       */
+      thanks_balance: function(on_get) {
+        request(
+          'get',
+          '/management/thanks/balance',
+          auth_headers(env.USER, Date.now()),
+          null,
+          on_get
+        )
+      },
       /**
        * change the address associated with your user
        * @param address string
@@ -507,6 +532,20 @@ module.exports = function(env) {
           auth_headers(env.USER, Date.now()),
           JSON.stringify({resources: resources}),
           on_push
+        )
+      },
+      /**
+       * get a receipt for an established isa
+       * @param isa_id mixed
+       * @param on_get function
+       */
+      receipt: function(isa_id, on_get) {
+        request(
+          'get',
+          '/management/receipt/' + isa_id,
+          auth_headers(env.USER, Date.now()),
+          null,
+          on_get
         )
       }
     },
