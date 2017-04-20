@@ -343,7 +343,7 @@ module.exports = function(env) {
         get_all: function(user_did, on_get) {
           request(
             'get',
-            '/management/action/' + user_did,
+            '/management/action' + (user_did ? ('/' + user_did) : ''),
             auth_headers(env.USER, Date.now()),
             null,
             on_get
