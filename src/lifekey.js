@@ -742,6 +742,21 @@ module.exports = function(env) {
           on_get
         )
       }
+    },
+    thanks: {
+      send: function(user_did, amount, reason, on_send) {
+        request(
+          'post',
+          '/management/thanks',
+          auth_headers(env.USER, Date.now()),
+          JSON.stringify({
+            recipient: user_did,
+            amount: amount,
+            reason: reason
+          }),
+          on_send
+        )
+      }
     }
   }
 }
