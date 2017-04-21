@@ -436,8 +436,9 @@ module.exports = function(env) {
        * @param on_create function
        */
       create: function(user_did, action_name, response, on_create) {
-        if (!(user_did && action_name) ||
-            !(Array.isArray(response.entities) &&
+        if (!(user_did &&
+              action_name &&
+              Array.isArray(response.entities) &&
               response.entities.length)) {
           return on_create(new Error('missing required arguments'))
         }
