@@ -1,73 +1,8 @@
 
 'use strict'
 
-var http = require('http')
-
-var ursa = require('ursa')
-
-function sign(plain, private_key) {
-  return private_key.hashAndSign(
-    'sha256',
-    '' + plain,
-    'utf8',
-    'base64',
-    false
-  )
-}
-
-function verify(plain, signature, public_key) {
-  return public_key.hashAndVerify(
-    'sha256',
-    Buffer(plain),
-    signature,
-    'base64',
-    false
-  )
-}
-
-function request(method, path, headers, body, on_send) {
-  var h = {'content-type': 'application/json'}
-  if (headers) {
-    Object.keys(headers).forEach(function(k) {
-      h[k] = headers[k]
-    })
-  }
-  return http.request({
-    host: 'staging.api.lifekey.cnsnt.io',
-    path: path,
-    method: method,
-    headers: h
-  }).on('response', function(res) {
-    parse_res(res, function(err, r) {
-      if (err) return on_send(err)
-      return on_send(null, r.body)
-    })
-  }).on('error', on_send).end(body || null)
-}
-
-function auth_headers(user, plain) {
-  return {
-    'x-cnsnt-id': user.ID,
-    'x-cnsnt-plain': plain,
-    'x-cnsnt-signed': sign(plain, user.PRIVATE_KEY)
-  }
-}
-
-function parse_res(res, on_parsed) {
-  var r = ''
-  res.on('data', function(data) {
-    r += data
-  }).on('end', function() {
-    try {
-      r = JSON.parse(r)
-    } catch (e) {
-      console.log('from server', r)
-      return on_parsed(e)
-    }
-    if (r.error) return on_parsed(new Error(r.message))
-    return on_parsed(null, r)
-  })
-}
+var http = require('./http')
+var crypto = require('./crypto')
 
 module.exports = function(env) {
   return {
@@ -77,10 +12,10 @@ module.exports = function(env) {
        * @param on_get function
        */
       get_profile: function(on_get) {
-        request(
+        http.request(
           'get',
           '/profile',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_get
         )
@@ -90,10 +25,10 @@ module.exports = function(env) {
        * @param on_get function
        */
       thanks_balance: function(on_get) {
-        request(
+        http.request(
           'get',
           '/management/thanks/balance',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_get
         )
@@ -104,10 +39,10 @@ module.exports = function(env) {
        * @param on_update function
        */
       address: function(address, on_update) {
-        request(
+        http.request(
           'put',
           '/profile/address',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({address: address}),
           on_update
         )
@@ -119,10 +54,10 @@ module.exports = function(env) {
        * @param on_update function
        */
       tel: function(tel, on_update) {
-        request(
+        http.request(
           'put',
           '/profile/tel',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({tel: tel}),
           on_update
         )
@@ -134,10 +69,10 @@ module.exports = function(env) {
        * @param on_update function
        */
       email: function(email, on_update) {
-        request(
+        http.request(
           'put',
           '/profile/email',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({email: email}),
           on_update
         )
@@ -149,10 +84,10 @@ module.exports = function(env) {
        * @param on_update function
        */
       name: function(name, on_update) {
-        request(
+        http.request(
           'put',
           '/profile/name',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({name: name}),
           on_update
         )
@@ -167,10 +102,10 @@ module.exports = function(env) {
         if (!(/^#(?:[0-9a-f]{3}){1,2}$/i).test(colour)) {
           return on_update(new Error('invalid colour code given'))
         }
-        request(
+        http.request(
           'put',
           '/profile/colour',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({colour: colour}),
           on_update
         )
@@ -182,10 +117,10 @@ module.exports = function(env) {
        * @param on_update function
        */
       image: function(image_uri, on_update) {
-        request(
+        http.request(
           'put',
           '/profile/image',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({image_uri: image_uri}),
           on_update
         )
@@ -200,10 +135,10 @@ module.exports = function(env) {
         if (!webhook_url) {
           return on_update(new Error('missing required arguments'))
         }
-        request(
+        http.request(
           'post',
           '/management/device',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({webhook_url: webhook_url}),
           on_update
         )
@@ -224,11 +159,11 @@ module.exports = function(env) {
         user.public_key = private_key.toPublicPem('utf8')
         user.plaintext_proof = '' + Date.now()
         try {
-          user.signed_proof = sign(user.plaintext_proof, private_key)
+          user.signed_proof = crypto.sign(user.plaintext_proof, private_key)
         } catch (err) {
           return on_register(err)
         }
-        request(
+        http.request(
           'post',
           '/management/register',
           {},
@@ -254,10 +189,10 @@ module.exports = function(env) {
           if (!user_did) {
             return on_send(new Error('missing required arguments'))
           }
-          request(
+          http.request(
             'post',
             '/management/connection',
-            auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now()),
             JSON.stringify({target: user_did}),
             on_send
           )
@@ -272,10 +207,10 @@ module.exports = function(env) {
           if (!(ucr_id && typeof accepted === 'boolean')) {
             return on_respond(new Error('missing required arguments'))
           }
-          request(
+          http.request(
             'post',
             '/management/connection/' + ucr_id,
-            auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now()),
             JSON.stringify({accepted: accepted}),
             on_respond
           )
@@ -286,10 +221,10 @@ module.exports = function(env) {
        * @param on_get function
        */
       get_all: function(on_get) {
-        request(
+        http.request(
           'get',
           '/management/connection',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_get
         )
@@ -303,10 +238,10 @@ module.exports = function(env) {
         if (!uc_id) {
           return on_delete(new Error('missing required arguments'))
         }
-        request(
+        http.request(
           'delete',
           '/management/connection/' + uc_id,
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_delete
         )
@@ -327,10 +262,10 @@ module.exports = function(env) {
                 action.duration_days)) {
             return on_create(new Error('missing required arguments'))
           }
-          request(
+          http.request(
             'post',
             '/management/action',
-            auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now()),
             JSON.stringify(action),
             on_create
           )
@@ -341,10 +276,10 @@ module.exports = function(env) {
          * @param on_get function
          */
         get_all: function(user_did, on_get) {
-          request(
+          http.request(
             'get',
             '/management/action' + (user_did ? ('/' + user_did) : ''),
-            auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now()),
             null,
             on_get
           )
@@ -356,10 +291,10 @@ module.exports = function(env) {
          * @param on_get function
          */
         get_one: function(user_did, action_name, on_get) {
-          request(
+          http.request(
             'get',
             '/management/action/' + user_did + '/' + action_name,
-            auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now()),
             null,
             on_get
           )
@@ -370,10 +305,10 @@ module.exports = function(env) {
          * @param on_delete function
          */
         delete: function(action_name, on_delete) {
-          request(
+          http.request(
             'delete',
             '/management/action/' + action_name,
-            auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now()),
             null,
             on_delete
           )
@@ -394,10 +329,10 @@ module.exports = function(env) {
                 isa.required_entities.length)) {
             return on_send(new Error('missing required arguments'))
           }
-          request(
+          http.request(
             'post',
             '/management/isa',
-            auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now()),
             JSON.stringify({
               to: isa.user_did,
               purpose: isa.purpose,
@@ -419,10 +354,10 @@ module.exports = function(env) {
                 Array.isArray(response.permitted_resources))) {
             return on_respond(new Error('missing required arguments'))
           }
-          request(
+          http.request(
             'post',
             '/management/isa/' + isar_id,
-            auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now()),
             JSON.stringify(response),
             on_respond
           )
@@ -442,10 +377,10 @@ module.exports = function(env) {
               response.entities.length)) {
           return on_create(new Error('missing required arguments'))
         }
-        request(
+        http.request(
           'post',
           '/management/isa/' + user_did + '/' + action_name,
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify(response),
           on_create
         )
@@ -455,10 +390,10 @@ module.exports = function(env) {
        * @param on_get function
        */
       get_all: function(on_get) {
-        request(
+        http.request(
           'get',
           '/management/isa',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_get
         )
@@ -469,10 +404,10 @@ module.exports = function(env) {
        * @param on_get function
        */
       get_one: function(isa_id, on_get) {
-        request(
+        http.request(
           'get',
           '/management/isa/' + isa_id,
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_get
         )
@@ -484,10 +419,10 @@ module.exports = function(env) {
        * @param on_update function
        */
       update: function(isa_id, permitted_resources, on_update) {
-        request(
+        http.request(
           'put',
           '/management/isa/' + isa_id,
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({permitted_resources: permitted_resources}),
           on_update
         )
@@ -498,10 +433,10 @@ module.exports = function(env) {
        * @param on_delete function
        */
       delete: function(isa_id, on_delete) {
-        request(
+        http.request(
           'delete',
           '/management/isa/' + isa_id,
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_delete
         )
@@ -512,10 +447,10 @@ module.exports = function(env) {
        * @param on_pull function
        */
       pull: function(isa_id, on_pull) {
-        request(
+        http.request(
           'get',
           '/management/pull/' + isa_id,
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_pull
         )
@@ -527,10 +462,10 @@ module.exports = function(env) {
        * @param on_push function
        */
       push: function(isa_id, resources, on_push) {
-        request(
+        http.request(
           'post',
           '/management/push/' + isa_id,
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({resources: resources}),
           on_push
         )
@@ -541,10 +476,10 @@ module.exports = function(env) {
        * @param on_get function
        */
       receipt: function(isa_id, on_get) {
-        request(
+        http.request(
           'get',
           '/management/receipt/' + isa_id,
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_get
         )
@@ -596,7 +531,7 @@ module.exports = function(env) {
             claim_instance.claim[field] = resource.additional_fields[field]
           })
 
-          claim_instance.signatureValue = sign(
+          claim_instance.signatureValue = crypto.sign(
             JSON.stringify(claim_instance.claim),
             env.USER.PRIVATE_KEY
           )
@@ -620,7 +555,7 @@ module.exports = function(env) {
           var signature = verifiable_claim.signatureValue
           
           try {
-            var ursa_public_key = ursa.coercePublicKey(public_key)
+            var public_key = crypto.public_key(public_key)
           } catch (e) {
             return on_verify(
               new Error(
@@ -629,7 +564,7 @@ module.exports = function(env) {
             )
           }
 
-          return on_verify(null, verify(plaintext, signature, ursa_public_key))
+          return on_verify(null, crypto.verify(plaintext, signature, public_key))
         }
       },
       /**
@@ -638,10 +573,10 @@ module.exports = function(env) {
        * @param on_index function
        */
       index: function(get_pushed, on_index) {
-        request(
+        http.request(
           'get',
           get_pushed ? '/resource?pushed=1' : '/resource',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_index
         )
@@ -652,10 +587,10 @@ module.exports = function(env) {
        * @param on_create function
        */
       create: function(resource, on_create) {
-        request(
+        http.request(
           'post',
           '/resource',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({
             entity: resource.entity,
             attribute: resource.attribute,
@@ -677,10 +612,10 @@ module.exports = function(env) {
        * @param on_get function
        */
       get_one: function(resource_id, on_get) {
-        request(
+        http.request(
           'get',
           '/resource/' + resource_id,
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_get
         )
@@ -692,10 +627,10 @@ module.exports = function(env) {
        * @param on_update function
        */
       update: function(resource_id, resource, on_update) {
-        request(
+        http.request(
           'put',
           '/resource/' + resource_id,
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({
             entity: resource.entity,
             attribute: resource.attribute,
@@ -718,10 +653,10 @@ module.exports = function(env) {
        * @param on_delete function
        */
       delete: function(resource_id, on_delete) {
-        request(
+        http.request(
           'delete',
           '/resource/' + resource_id,
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_delete
         )
@@ -735,10 +670,10 @@ module.exports = function(env) {
        * @param on_get
        */
       get: function(user_did, alias, on_get) {
-        request(
+        http.request(
           'get',
           '/management/key/' + user_did + (alias ? '?alias=' + alias : ''),
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           null,
           on_get
         )
@@ -746,10 +681,10 @@ module.exports = function(env) {
     },
     thanks: {
       send: function(user_did, amount, reason, on_send) {
-        request(
+        http.request(
           'post',
           '/management/thanks',
-          auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now()),
           JSON.stringify({
             recipient: user_did,
             amount: amount,
@@ -758,15 +693,6 @@ module.exports = function(env) {
           on_send
         )
       }
-    },
-    ping: function(on_ping) {
-      request(
-        'post',
-        '/directory/ping',
-        auth_headers(env.USER, Date.now()),
-        null,
-        on_ping
-      )
     }
   }
 }
