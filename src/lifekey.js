@@ -758,6 +758,15 @@ module.exports = function(env) {
           on_send
         )
       }
+    },
+    ping: function(on_ping) {
+      request(
+        'post',
+        '/directory/ping',
+        auth_headers(env.USER, Date.now()),
+        null,
+        on_ping
+      )
     }
   }
 }
