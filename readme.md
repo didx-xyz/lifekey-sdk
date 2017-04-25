@@ -35,3 +35,4 @@ name | data
 `sent_activation_email` | `{}`
 `app_activation_link_clicked` | `{}`
 `received_did` | `{did_value, did_address}`
+`received_thanks` | `{amount, reason, from_did}`
