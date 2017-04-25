@@ -693,6 +693,21 @@ module.exports = function(env) {
           on_send
         )
       }
+    },
+    directory: {
+      /**
+       * ping directory for liveness checking
+       * @param on_ping function
+       */
+      ping: function(on_ping) {
+        http.request(
+          'post',
+          '/directory/ping',
+          http.auth_headers(env.USER, Date.now()),
+          null,
+          on_ping
+        )
+      }
     }
   }
 }
