@@ -25,6 +25,9 @@ function ping(user) {
 }
 
 module.exports = function(env) {
+
+  var api = require('./lifekey')(env)
+
   var cors = require('cors')
   var morgan = require('morgan')
   var bodyParser = require('body-parser')
@@ -40,7 +43,7 @@ module.exports = function(env) {
   
   agent.listen = function() {
     http_server = server.listen(env.PORT, function() {
-      liveness_timer = setInterval(ping.bind(ping, env.USER), 1000 * 30)
+      liveness_timer = setInterval(api.directory.ping, 1000 * 60)
       agent.emit('listening', server, http_server)
     })
   }
