@@ -14,6 +14,16 @@ function return_actions(ids) {
   })
 }
 
+function ping(user) {
+  http.request(
+    'post',
+    '/directory/ping',
+    http.auth_headers(user, Date.now()),
+    null,
+    console.log
+  )
+}
+
 module.exports = function(env) {
 
   var api = require('./lifekey')(env)
@@ -39,8 +49,8 @@ module.exports = function(env) {
   }
 
   agent.close = function() {
+    clearInterval(liveness_timer)
     http_server.close(function() {
-      clearInterval(liveness_timer)
       agent.emit('close')
     })
   }
