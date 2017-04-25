@@ -14,11 +14,11 @@ function return_actions(ids) {
   })
 }
 
-function ping() {
+function ping(user) {
   http.request(
     'post',
     '/directory/ping',
-    http.auth_headers(env.USER, Date.now()),
+    http.auth_headers(user, Date.now()),
     null,
     console.log
   )
@@ -40,7 +40,7 @@ module.exports = function(env) {
   
   agent.listen = function() {
     http_server = server.listen(env.PORT, function() {
-      liveness_timer = setInterval(ping, 1000 * 5)
+      liveness_timer = setInterval(ping.bind(ping, env.USER), 1000 * 30)
       agent.emit('listening', server, http_server)
     })
   }
