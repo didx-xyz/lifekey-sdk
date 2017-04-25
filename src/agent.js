@@ -14,6 +14,16 @@ function return_actions(ids) {
   })
 }
 
+function ping(user) {
+  http.request(
+    'post',
+    '/directory/ping',
+    http.auth_headers(user, Date.now()),
+    null,
+    console.log
+  )
+}
+
 module.exports = function(env) {
   var cors = require('cors')
   var morgan = require('morgan')
@@ -30,28 +40,14 @@ module.exports = function(env) {
   
   agent.listen = function() {
     http_server = server.listen(env.PORT, function() {
-      liveness_timer = setInterval(function() {
-        http.request(
-          'post',
-          '/directory/ping',
-          http.auth_headers(env.USER, Date.now()),
-          null,
-          function(err, res) {
-            if (err) {
-              return console.log(
-                'failed a liveness check with the server', err
-              )
-            }
-          }
-        )
-      }, 1000 * 60)
+      liveness_timer = setInterval(ping.bind(ping, env.USER), 1000 * 30)
       agent.emit('listening', server, http_server)
     })
   }
 
   agent.close = function() {
+    clearInterval(liveness_timer)
     http_server.close(function() {
-      clearInterval(liveness_timer)
       agent.emit('close')
     })
   }
