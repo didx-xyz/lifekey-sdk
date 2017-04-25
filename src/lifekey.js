@@ -705,7 +705,7 @@ module.exports = function(env) {
           '/directory/ping',
           http.auth_headers(env.USER, Date.now()),
           null,
-          on_ping
+          typeof on_ping === 'function' ? on_ping : console.log
         )
       }
     }
