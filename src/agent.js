@@ -3,6 +3,8 @@
 
 var events = require('events')
 
+var http = require('./http')
+
 function return_actions(ids) {
   this.status(200).json({
     error: false,
@@ -18,21 +20,38 @@ module.exports = function(env) {
   var bodyParser = require('body-parser')
   var express = require('express')
 
-  var server, http_server
+  var server, http_server, liveness_timer
 
   var agent = new events.EventEmitter
 
   agent.middleware = function() {
     return server
   }
+  
   agent.listen = function() {
     http_server = server.listen(env.PORT, function() {
+      liveness_timer = setInterval(function() {
+        http.request(
+          'post',
+          '/directory/ping',
+          http.auth_headers(env.USER, Date.now()),
+          null,
+          function(err, res) {
+            if (err) {
+              return console.log(
+                'failed a liveness check with the server', err
+              )
+            }
+          }
+        )
+      }, 1000 * 60)
       agent.emit('listening', server, http_server)
     })
   }
 
   agent.close = function() {
     http_server.close(function() {
+      clearInterval(liveness_timer)
       agent.emit('close')
     })
   }
