@@ -708,6 +708,15 @@ module.exports = function(env) {
           typeof on_ping === 'function' ? on_ping : console.log
         )
       }
+    },
+    message: function(user_did, message, on_send) {
+      http.request(
+        'post',
+        '/management/message',
+        http.auth_headers(env.USER, Date.now()),
+        JSON.stringify({recipient: user_did, msg: message}),
+        on_send
+      )
     }
   }
 }
