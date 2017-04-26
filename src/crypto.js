@@ -4,6 +4,7 @@
 var ursa = require('ursa')
 
 module.exports = {
+  new_private_key: ursa.generatePrivateKey,
   public_key: ursa.coercePublicKey,
   sign: function sign(plain, private_key) {
     return private_key.hashAndSign(

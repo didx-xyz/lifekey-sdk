@@ -154,7 +154,7 @@ module.exports = function(env) {
         if (!user.nickname) return on_register(new Error('user.nickname is required'))
         if (!user.webhook_url) return on_register(new Error('user.webhook_url is required'))
         if (!user.actions_url) return on_register(new Error('user.actions_url is required'))
-        var private_key = ursa.generatePrivateKey(4096)
+        var private_key = crypto.new_private_key(4096)
         user.public_key_algorithm = 'rsa'
         user.public_key = private_key.toPublicPem('utf8')
         user.plaintext_proof = '' + Date.now()
