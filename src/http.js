@@ -41,6 +41,11 @@ module.exports = {
       method: method,
       headers: h
     }).on('response', function(res) {
+      if (res.statusCode === 502) {
+        return on_send(
+          new Error('lifekey-server is down (probably temporarily)')
+        )
+      }
       parse_res(res, function(err, r) {
         if (err) return on_send(err)
         return on_send(null, r.body)
