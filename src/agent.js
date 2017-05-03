@@ -5,12 +5,12 @@ var events = require('events')
 
 var http = require('./http')
 
-function return_actions(ids) {
+function return_actions(actions) {
   this.status(200).json({
     error: false,
     status: 200,
     message: 'ok',
-    body: ids
+    body: actions
   })
 }
 
@@ -66,6 +66,16 @@ module.exports = function(env) {
       did: req.headers['x-cnsnt-did']
     }, return_actions.bind(res))
     if (!heard) return_actions.call(res, [])
+  })
+
+  server.get(`${env.ACTIONS_PATH}/:action_name`, function(req, res) {
+    agent.emit(
+      'action_request',
+      {did: req.headers['x-cnsnt-did']},
+      req.params.action_name,
+      api.information_sharing_agreement.request.send
+    )
+    res.status(200).end()
   })
 
   server.post(env.WEBHOOK_PATH, function(req, res) {
