@@ -37,3 +37,4 @@ name | data
 `received_did` | `{did_value, did_address}`
 `received_thanks` | `{amount, reason, from_did}`
 `user_message_received` | `{from_did, message}`
+`isa_ledgered` | `{isa_id, txid}`
