@@ -24,7 +24,7 @@ function ping(user) {
   )
 }
 
-module.exports = function(env) {
+module.exports = function(env, middlewares) {
 
   var api = require('./lifekey')(env)
 
@@ -60,6 +60,12 @@ module.exports = function(env) {
   if (env.MORGAN) server.use(morgan('dev'))
   server.use(cors(/* TODO cors settings */))
   server.use(bodyParser.json())
+
+  if (Array.isArray(middlewares) && middlewares.length) {
+    middlewares.forEach(function(middleware) {
+      server.use(middleware())
+    })
+  }
 
   server.get(env.ACTIONS_PATH, function(req, res) {
     var heard = agent.emit('get_actions', {
