@@ -62,7 +62,7 @@ module.exports = function(env, before) {
   server.use(bodyParser.json())
 
   if (typeof before === 'function') {
-    before(server)
+    before(server, express)
   }
 
   server.get(env.ACTIONS_PATH, function(req, res) {
