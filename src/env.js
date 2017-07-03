@@ -10,9 +10,14 @@ module.exports = function(env) {
   var required = [
     'PORT',
     'WEBHOOK_PATH',
-    'ACTIONS_PATH',
     'SIGNING_KEY_PEM',
     'USER_ID'
+  ]
+
+  var optional = [
+    'ACTIONS_PATH',
+    'WEB_AUTH_PATH',
+    'USER_DID'
   ]
 
   required.forEach(function(key) {
@@ -20,6 +25,12 @@ module.exports = function(env) {
       throw new Error(
         'expected truthy value for ' + key + ' but got ' + env[key]
       )
+    }
+  })
+
+  optional.forEach(function(key) {
+    if (typeof env[key] === 'undefined') {
+      env[key] = null
     }
   })
 
@@ -31,6 +42,7 @@ module.exports = function(env) {
 
   env.USER = {
     ID: env.USER_ID,
+    DID: env.USER_DID,
     PRIVATE_KEY: private_key,
     PUBLIC_KEY: private_key.toPublicPem('utf8')
   }
