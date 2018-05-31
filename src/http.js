@@ -1,10 +1,11 @@
 
 'use strict'
 
+var crypto = require('crypto')
 var http = require('http')
-var crypto = require('./crypto')
 
 function parse_res(res, on_parsed) {
+  
   var r = ''
   res.on('data', function(data) {
     r += data
@@ -15,6 +16,9 @@ function parse_res(res, on_parsed) {
       console.log('from server', r)
       return on_parsed(e)
     }
+    if(r.error && r.body && r.body.validation_errors){
+      console.log(r.body.validation_errors)
+    }
     if (r.error) return on_parsed(new Error(r.message))
     return on_parsed(null, r)
   })
@@ -22,10 +26,12 @@ function parse_res(res, on_parsed) {
 
 module.exports = {
   auth_headers: function(user, plain) {
+    var signer = crypto.createSign('RSA-SHA256')
+    signer.update(plain)    
     return {
       'x-cnsnt-id': user.ID,
       'x-cnsnt-plain': plain,
-      'x-cnsnt-signed': crypto.sign(plain, user.PRIVATE_KEY)
+      'x-cnsnt-signed': crypto.sign(user.PRIVATE_KEY)
     }
   },
   request: function(method, path, headers, body, on_send) {
