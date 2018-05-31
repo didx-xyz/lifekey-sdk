@@ -2,8 +2,7 @@
 'use strict'
 
 var fs = require('fs')
-
-var ursa = require('ursa')
+var rsa = require('node-rsa')
 
 module.exports = function(env) {
   
@@ -35,7 +34,7 @@ module.exports = function(env) {
   })
 
   try {
-    var private_key = ursa.coercePrivateKey(env.SIGNING_KEY_PEM)
+    var private_key = new rsa(env.SIGNING_KEY_PEM)
   } catch (e) {
     throw e
   }
@@ -44,7 +43,7 @@ module.exports = function(env) {
     ID: env.USER_ID,
     DID: env.USER_DID,
     PRIVATE_KEY: private_key,
-    PUBLIC_KEY: private_key.toPublicPem('utf8')
+    PUBLIC_KEY: private_key.exportKey('pkcs1-public')
   }
 
   env.NODE_ENV = process.env.NODE_ENV || 'development'
