@@ -1,8 +1,9 @@
 
 'use strict'
 
+var rsa = require('node-rsa')
+var crypto = require('crypto')
 var http = require('./http')
-var crypto = require('./crypto')
 
 module.exports = function(env) {
   return {
@@ -154,12 +155,15 @@ module.exports = function(env) {
         if (!user.nickname) return on_register(new Error('user.nickname is required'))
         if (!user.webhook_url) return on_register(new Error('user.webhook_url is required'))
         if (!user.actions_url) return on_register(new Error('user.actions_url is required'))
-        var private_key = crypto.new_private_key(4096)
+        var private_key = new rsa({bits: 4096})
+        var private_key_pem = private_key.exportKey()
         user.public_key_algorithm = 'rsa'
-        user.public_key = private_key.toPublicPem('utf8')
+        user.public_key = private_key.exportKey('pkcs1-public')
         user.plaintext_proof = '' + Date.now()
         try {
-          user.signed_proof = crypto.sign(user.plaintext_proof, private_key)
+          var signer = crypto.createSign('RSA-SHA256')
+          signer.update(plaintext_proof)
+          user.signed_proof = signer.sign(private_key_pem)
         } catch (err) {
           return on_register(err)
         }
@@ -172,7 +176,7 @@ module.exports = function(env) {
             if (err) return on_register(err)
             user.USER_ID = reg.id
             user.ACTIVATION_CODE = reg.activation
-            user.SIGNING_KEY_PEM = private_key.toPrivatePem('utf8')
+            user.SIGNING_KEY_PEM = private_key_pem
             return on_register(null, user)
           }
         )
@@ -531,11 +535,9 @@ module.exports = function(env) {
             claim_instance.claim[field] = resource.additional_fields[field]
           })
 
-          claim_instance.signatureValue = crypto.sign(
-            JSON.stringify(claim_instance.claim),
-            env.USER.PRIVATE_KEY
-          )
-
+	  var signer = crypto.createSign('RSA-SHA256')
+          signer.update(JSON.stringify(claim_instance.claim))
+          claim_instance.signatureValue = signer.sign(env.USER.PRIVATE_KEY.exportKey())
           return on_create(null, claim_instance)
         },
         /**
@@ -555,8 +557,9 @@ module.exports = function(env) {
           var signature = verifiable_claim.signatureValue
           
           try {
-            var public_key = crypto.public_key(public_key)
+            var public_key = new rsa(public_key)
           } catch (e) {
+            console.log(e)
             return on_verify(
               new Error(
                 'unable to initialise ursa public key instance with given public key value'
@@ -564,7 +567,10 @@ module.exports = function(env) {
             )
           }
 
-          return on_verify(null, crypto.verify(plaintext, signature, public_key))
+	  var verifier = crypto.createVerify('RSA-SHA256')
+          verifier.update(plaintext)
+          var verified = verifier.verify(public_key.exportKey('pkcs1-public'), signature)
+          return on_verify(null, verified)
         }
       },
       /**
