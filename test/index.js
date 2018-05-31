@@ -2,7 +2,7 @@
 var http = require('http')
 
 var {expect} = require('chai')
-var ursa = require('ursa')
+var rsa = require('node-rsa')
 
 describe('lifekey-sdk', function() {
 
@@ -105,17 +105,18 @@ describe('lifekey-sdk', function() {
     })
 
     it('should return a copy with keypair attached', function(done) {
+      this.timeout(5000)
+      var keypair = new rsa({bits: 4096})
       try {
         var myenv = env({
           PORT: 3000,
           WEBHOOK_PATH: '/',
           ACTIONS_PATH: '/actions',
-          SIGNING_KEY_PEM: ursa.generatePrivateKey(4096).toPrivatePem('utf8'),
+          SIGNING_KEY_PEM: keypair.exportKey(),
           USER_ID: 1
         })
       } catch (e) {
-        console.log(e)
-        return new Error('should not have been called')
+        return done(new Error('should not have been called'))
       }
       if (!(myenv.USER.ID && myenv.USER.PRIVATE_KEY)) {
         return done(new Error('keypair not in env map'))
@@ -125,7 +126,7 @@ describe('lifekey-sdk', function() {
   })
 
   describe('lifekey', function() {
-    var private_key_pem = ursa.generatePrivateKey(4096).toPrivatePem('utf8')
+    var private_key_pem = (new rsa({bits: 4096})).exportKey()
     var api = require('../src/lifekey')(
       require('../src/env')({
         PORT: 3000,
@@ -167,8 +168,8 @@ describe('lifekey-sdk', function() {
         })
 
         describe('verify', function() {
-          var private_key = ursa.coercePrivateKey(private_key_pem)
-          var public_key_pem = private_key.toPublicPem('utf8')
+	  var private_key = new rsa(private_key_pem)
+          var public_key_pem = private_key.exportKey('pkcs1-public')
 
           it('should respond with an error if required fields of a verifiable claim are missing', function(done) {
             api.resource.verifiable_claim.verify(
