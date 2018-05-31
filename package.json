@@ -20,8 +20,8 @@
     "jsonld": "^0.4.11",
     "ld-query": "^1.0.0",
     "morgan": "^1.8.1",
-    "secp256k1": "^3.2.5",
-    "ursa": "^0.9.4"
+    "node-rsa": "1.0.0",
+    "secp256k1": "^3.2.5"
   },
   "devDependencies": {
     "blocked": "^1.2.1",
