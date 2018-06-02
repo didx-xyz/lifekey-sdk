@@ -1,0 +1,16 @@
+{
+  "name": "examples",
+  "version": "1.0.0",
+  "description": "",
+  "main": "activation-bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node pirate-bot.js"
+  },
+  "dependencies": {
+    "lifekey-sdk": "~/repo/lifekey-sdk"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

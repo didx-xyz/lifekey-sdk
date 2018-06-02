@@ -535,7 +535,7 @@ module.exports = function(env) {
             claim_instance.claim[field] = resource.additional_fields[field]
           })
 
-	  var signer = crypto.createSign('RSA-SHA256')
+	        var signer = crypto.createSign('RSA-SHA256')
           signer.update(JSON.stringify(claim_instance.claim))
           claim_instance.signatureValue = signer.sign(env.USER.PRIVATE_KEY.exportKey())
           return on_create(null, claim_instance)
@@ -567,7 +567,7 @@ module.exports = function(env) {
             )
           }
 
-	  var verifier = crypto.createVerify('RSA-SHA256')
+	        var verifier = crypto.createVerify('RSA-SHA256')
           verifier.update(plaintext)
           var verified = verifier.verify(public_key.exportKey('pkcs1-public'), signature)
           return on_verify(null, verified)
