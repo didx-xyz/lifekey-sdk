@@ -31,7 +31,7 @@ module.exports = {
     return {
       'x-cnsnt-id': user.ID,
       'x-cnsnt-plain': plain,
-      'x-cnsnt-signed': crypto.sign(user.PRIVATE_KEY.exportKey())
+      'x-cnsnt-signed': signer.sign(user.PRIVATE_KEY.exportKey())
     }
   },
   request: function(method, path, headers, body, on_send) {
