@@ -16,7 +16,7 @@ module.exports = function(env) {
         http.request(
           'get',
           '/profile',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_get
         )
@@ -29,7 +29,7 @@ module.exports = function(env) {
         http.request(
           'get',
           '/management/thanks/balance',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_get
         )
@@ -43,7 +43,7 @@ module.exports = function(env) {
         http.request(
           'put',
           '/profile/address',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({address: address}),
           on_update
         )
@@ -58,7 +58,7 @@ module.exports = function(env) {
         http.request(
           'put',
           '/profile/tel',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({tel: tel}),
           on_update
         )
@@ -73,7 +73,7 @@ module.exports = function(env) {
         http.request(
           'put',
           '/profile/email',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({email: email}),
           on_update
         )
@@ -88,7 +88,7 @@ module.exports = function(env) {
         http.request(
           'put',
           '/profile/name',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({name: name}),
           on_update
         )
@@ -106,7 +106,7 @@ module.exports = function(env) {
         http.request(
           'put',
           '/profile/colour',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({colour: colour}),
           on_update
         )
@@ -121,7 +121,7 @@ module.exports = function(env) {
         http.request(
           'put',
           '/profile/image',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({image_uri: image_uri}),
           on_update
         )
@@ -139,7 +139,7 @@ module.exports = function(env) {
         http.request(
           'post',
           '/management/device',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({webhook_url: webhook_url}),
           on_update
         )
@@ -196,7 +196,7 @@ module.exports = function(env) {
           http.request(
             'post',
             '/management/connection',
-            http.auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now().toString()),
             JSON.stringify({target: user_did}),
             on_send
           )
@@ -214,7 +214,7 @@ module.exports = function(env) {
           http.request(
             'post',
             '/management/connection/' + ucr_id,
-            http.auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now().toString()),
             JSON.stringify({accepted: accepted}),
             on_respond
           )
@@ -228,7 +228,7 @@ module.exports = function(env) {
         http.request(
           'get',
           '/management/connection',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_get
         )
@@ -245,7 +245,7 @@ module.exports = function(env) {
         http.request(
           'delete',
           '/management/connection/' + uc_id,
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_delete
         )
@@ -269,7 +269,7 @@ module.exports = function(env) {
           http.request(
             'post',
             '/management/action',
-            http.auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now().toString()),
             JSON.stringify(action),
             on_create
           )
@@ -283,7 +283,7 @@ module.exports = function(env) {
           http.request(
             'get',
             '/management/action' + (user_did ? ('/' + user_did) : ''),
-            http.auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now().toString()),
             null,
             on_get
           )
@@ -298,7 +298,7 @@ module.exports = function(env) {
           http.request(
             'get',
             '/management/action/' + user_did + '/' + action_name,
-            http.auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now().toString()),
             null,
             on_get
           )
@@ -312,7 +312,7 @@ module.exports = function(env) {
           http.request(
             'delete',
             '/management/action/' + action_name,
-            http.auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now().toString()),
             null,
             on_delete
           )
@@ -336,7 +336,7 @@ module.exports = function(env) {
           http.request(
             'post',
             '/management/isa',
-            http.auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now().toString()),
             JSON.stringify({
               to: isa.user_did,
               purpose: isa.purpose,
@@ -361,7 +361,7 @@ module.exports = function(env) {
           http.request(
             'post',
             '/management/isa/' + isar_id,
-            http.auth_headers(env.USER, Date.now()),
+            http.auth_headers(env.USER, Date.now().toString()),
             JSON.stringify(response),
             on_respond
           )
@@ -384,7 +384,7 @@ module.exports = function(env) {
         http.request(
           'post',
           '/management/isa/' + user_did + '/' + action_name,
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify(response),
           on_create
         )
@@ -397,7 +397,7 @@ module.exports = function(env) {
         http.request(
           'get',
           '/management/isa',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_get
         )
@@ -411,7 +411,7 @@ module.exports = function(env) {
         http.request(
           'get',
           '/management/isa/' + isa_id,
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_get
         )
@@ -426,7 +426,7 @@ module.exports = function(env) {
         http.request(
           'put',
           '/management/isa/' + isa_id,
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({permitted_resources: permitted_resources}),
           on_update
         )
@@ -440,7 +440,7 @@ module.exports = function(env) {
         http.request(
           'delete',
           '/management/isa/' + isa_id,
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_delete
         )
@@ -454,7 +454,7 @@ module.exports = function(env) {
         http.request(
           'get',
           '/management/pull/' + isa_id,
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_pull
         )
@@ -469,7 +469,7 @@ module.exports = function(env) {
         http.request(
           'post',
           '/management/push/' + isa_id,
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({resources: resources}),
           on_push
         )
@@ -483,7 +483,7 @@ module.exports = function(env) {
         http.request(
           'get',
           '/management/receipt/' + isa_id,
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_get
         )
@@ -582,7 +582,7 @@ module.exports = function(env) {
         http.request(
           'get',
           get_pushed ? '/resource?pushed=1' : '/resource',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_index
         )
@@ -596,7 +596,7 @@ module.exports = function(env) {
         http.request(
           'post',
           '/resource',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({
             entity: resource.entity,
             attribute: resource.attribute,
@@ -621,7 +621,7 @@ module.exports = function(env) {
         http.request(
           'get',
           '/resource/' + resource_id,
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_get
         )
@@ -636,7 +636,7 @@ module.exports = function(env) {
         http.request(
           'put',
           '/resource/' + resource_id,
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({
             entity: resource.entity,
             attribute: resource.attribute,
@@ -662,7 +662,7 @@ module.exports = function(env) {
         http.request(
           'delete',
           '/resource/' + resource_id,
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_delete
         )
@@ -679,7 +679,7 @@ module.exports = function(env) {
         http.request(
           'get',
           '/management/key/' + user_did + (alias ? '?alias=' + alias : ''),
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           on_get
         )
@@ -690,7 +690,7 @@ module.exports = function(env) {
         http.request(
           'post',
           '/management/thanks',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           JSON.stringify({
             recipient: user_did,
             amount: amount,
@@ -709,7 +709,7 @@ module.exports = function(env) {
         http.request(
           'post',
           '/directory/ping',
-          http.auth_headers(env.USER, Date.now()),
+          http.auth_headers(env.USER, Date.now().toString()),
           null,
           typeof on_ping === 'function' ? on_ping : console.log
         )
@@ -719,7 +719,7 @@ module.exports = function(env) {
       http.request(
         'post',
         '/management/message',
-        http.auth_headers(env.USER, Date.now()),
+        http.auth_headers(env.USER, Date.now().toString()),
         JSON.stringify({recipient: user_did, msg: message}),
         on_send
       )
