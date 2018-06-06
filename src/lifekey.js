@@ -12,6 +12,19 @@ module.exports = function(env) {
        * get your did value and address
        * @param on_get function
        */
+      get_public_profile: function(user_did, on_get) {
+        http.request(
+          'get',
+          '/profile/' + user_did,
+          null,
+          null,
+          on_get
+        )
+      },
+      /**
+       * get your did value and address
+       * @param on_get function
+       */
       get_profile: function(on_get) {
         http.request(
           'get',

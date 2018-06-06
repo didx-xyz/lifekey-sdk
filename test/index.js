@@ -168,7 +168,7 @@ describe('lifekey-sdk', function() {
         })
 
         describe('verify', function() {
-	  var private_key = new rsa(private_key_pem)
+	        var private_key = new rsa(private_key_pem)
           var public_key_pem = private_key.exportKey('pkcs1-public')
 
           it('should respond with an error if required fields of a verifiable claim are missing', function(done) {
