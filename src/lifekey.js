@@ -575,7 +575,7 @@ module.exports = function(env) {
             console.log(e)
             return on_verify(
               new Error(
-                'unable to initialise ursa public key instance with given public key value'
+                'unable to initialise rsa public key instance with given public key value'
               )
             )
           }
