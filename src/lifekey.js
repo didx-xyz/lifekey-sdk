@@ -175,8 +175,8 @@ module.exports = function(env) {
         user.plaintext_proof = '' + Date.now()
         try {
           var signer = crypto.createSign('RSA-SHA256')
-          signer.update(plaintext_proof)
-          user.signed_proof = signer.sign(private_key_pem)
+          signer.update(user.plaintext_proof)
+          user.signed_proof = signer.sign(private_key_pem).toString('base64')
         } catch (err) {
           return on_register(err)
         }
