@@ -728,12 +728,12 @@ module.exports = function(env) {
         )
       }
     },
-    message: function(user_did, message, on_send) {
+    message: function(user_did, message, on_send, message_title = '', message_type = '', message_id = '') { // message_type => "actionable_message" | "" // message_id => <claim_id>
       http.request(
         'post',
         '/management/message',
         http.auth_headers(env.USER, Date.now().toString()),
-        JSON.stringify({recipient: user_did, msg: message}),
+        JSON.stringify({ recipient: user_did, msg: message, title: message_title, type: message_type, message_id }),
         on_send
       )
     }
