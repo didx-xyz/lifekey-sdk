@@ -10,13 +10,16 @@ module.exports = function(env) {
     'PORT',
     'WEBHOOK_PATH',
     'SIGNING_KEY_PEM',
-    'USER_ID'
+    'USER_DID'
   ]
 
   var optional = [
     'ACTIONS_PATH',
     'WEB_AUTH_PATH',
-    'USER_DID'
+    'USER_DID',
+    'AGENT_PING_TIME',
+    'LIFEKEY_SERVER',
+    'LIFEKEY_SERVER_PORT'
   ]
 
   required.forEach(function(key) {

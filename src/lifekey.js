@@ -162,7 +162,7 @@ module.exports = function(env) {
        * @param user object
        * @param on_register function
        */
-      register: function(user, on_register) {
+      register: function(user, on_register, server, port) {
         if (typeof user !== 'object') return on_register(new Error('user parameter should be an object'))
         if (!user.email) return on_register(new Error('user.email is required'))
         if (!user.nickname) return on_register(new Error('user.nickname is required'))
@@ -191,7 +191,7 @@ module.exports = function(env) {
             user.ACTIVATION_CODE = reg.activation
             user.SIGNING_KEY_PEM = private_key_pem
             return on_register(null, user)
-          }
+          },server, port
         )
       }
     },
@@ -719,12 +719,17 @@ module.exports = function(env) {
        * @param on_ping function
        */
       ping: function(on_ping) {
+        console.log(`PING: user id =  ${env.USER.user_id} with DID = ${env.USER.DID}`)
+        console.log(`PING: to server =  ${env.LIFEKEY_SERVER} with DID = ${env.LIFEKEY_SERVER_PORT}`)
+
         http.request(
           'post',
           '/directory/ping',
           http.auth_headers(env.USER, Date.now().toString()),
           null,
-          typeof on_ping === 'function' ? on_ping : console.log
+          typeof on_ping === 'function' ? on_ping : console.log,
+          env.LIFEKEY_SERVER,
+          env.LIFEKEY_SERVER_PORT,
         )
       }
     },

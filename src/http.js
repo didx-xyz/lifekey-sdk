@@ -12,6 +12,7 @@ function parse_res(res, on_parsed) {
   }).on('end', function() {
     try {
       r = JSON.parse(r)
+      console.log(r)
     } catch (e) {
       console.log('from server', r)
       return on_parsed(e)
@@ -29,20 +30,24 @@ module.exports = {
     var signer = crypto.createSign('RSA-SHA256')
     signer.update(plain)    
     return {
-      'x-cnsnt-id': user.ID,
+      'x-cnsnt-did': user.DID,
       'x-cnsnt-plain': plain,
       'x-cnsnt-signed': signer.sign(user.PRIVATE_KEY.exportKey(), 'base64')
     }
   },
-  request: function(method, path, headers, body, on_send) {
+  request: function(method, path, headers, body, on_send, host = 'staging.api.lifekey.cnsnt.io', port = null) {
     var h = {'content-type': 'application/json'}
     if (headers) {
       Object.keys(headers).forEach(function(k) {
         h[k] = headers[k]
       })
     }
+    console.log(headers)
+    console.log(body)
+
     return http.request({
-      host: 'staging.api.lifekey.cnsnt.io',
+      host: host,
+      port: port,
       path: path,
       method: method,
       headers: h
