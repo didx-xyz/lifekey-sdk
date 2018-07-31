@@ -1,7 +1,7 @@
 {
   "name": "lifekey-sdk",
-  "version": "0.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "JS SDK to enable the intergration into the lifekey API",
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=development istanbul test _mocha -- --recursive --bail --check-leaks --no-exit -R spec",
