@@ -30,7 +30,7 @@ module.exports = {
     var signer = crypto.createSign('RSA-SHA256')
     signer.update(plain)    
     return {
-      'x-cnsnt-did': user.DID,
+      'x-cnsnt-id': user.ID,
       'x-cnsnt-plain': plain,
       'x-cnsnt-signed': signer.sign(user.PRIVATE_KEY.exportKey(), 'base64')
     }
@@ -42,9 +42,6 @@ module.exports = {
         h[k] = headers[k]
       })
     }
-    console.log(headers)
-    console.log(body)
-
     return http.request({
       host: host,
       port: port,
