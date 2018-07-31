@@ -729,7 +729,7 @@ module.exports = function(env) {
           null,
           typeof on_ping === 'function' ? on_ping : console.log,
           env.LIFEKEY_SERVER,
-          env.LIFEKEY_SERVER_PORT,
+          env.LIFEKEY_SERVER_PORT
         )
       }
     },
