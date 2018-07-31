@@ -24,7 +24,7 @@ function ping(user) {
     null,
     console.log,
     env.LIFEKEY_SERVER,
-    env.LIFEKEY_SERVER_PORT,
+    env.LIFEKEY_SERVER_PORT
   )
 }
 
