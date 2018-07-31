@@ -10,7 +10,7 @@ module.exports = function(env) {
     'PORT',
     'WEBHOOK_PATH',
     'SIGNING_KEY_PEM',
-    'USER_DID'
+    'USER_ID'
   ]
 
   var optional = [
