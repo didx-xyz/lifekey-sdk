@@ -11,8 +11,8 @@ function parse_res(res, on_parsed) {
     r += data
   }).on('end', function() {
     try {
-      r = JSON.parse(r)
       console.log(r)
+      r = JSON.parse(r)
     } catch (e) {
       console.log('from server', r)
       return on_parsed(e)
