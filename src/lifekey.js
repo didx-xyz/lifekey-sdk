@@ -719,9 +719,7 @@ module.exports = function(env) {
        * @param on_ping function
        */
       ping: function(on_ping) {
-        console.log(`PING: user id =  ${env.USER.user_id} with DID = ${env.USER.DID}`)
-        console.log(`PING: to server =  ${env.LIFEKEY_SERVER} with DID = ${env.LIFEKEY_SERVER_PORT}`)
-
+      
         http.request(
           'post',
           '/directory/ping',
