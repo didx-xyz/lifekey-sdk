@@ -731,12 +731,13 @@ module.exports = function(env) {
         )
       }
     },
-    message: function(user_did, message, on_send, message_title = '', message_type = '', message_id = '') { // message_type => "actionable_message" | "" // message_id => <claim_id>
-      http.request(
+    message: function(user_did, message, on_send, message_title = '', message_type = '', message_id = '', action_type = '') { // message_type => "actionable_message" | "" // message_id => <claim_id>
+    console.log(`ACTION TYPE: ${action_type}`)  
+    http.request(
         'post',
         '/management/message',
         http.auth_headers(env.USER, Date.now().toString()),
-        JSON.stringify({ recipient: user_did, msg: message, title: message_title, type: message_type, message_id }),
+        JSON.stringify({ recipient: user_did, msg: message, title: message_title, type: message_type, message_id, action_type: action_type }),
         on_send
       )
     }
